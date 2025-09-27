@@ -6,7 +6,6 @@
     <title>Professional Booking System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
-    <script src="config.js"></script>
     <style>
         body { 
             font-family: 'Inter', system-ui, -apple-system, sans-serif; 
@@ -205,8 +204,8 @@
     </footer>
 
     <script>
-        // Load API URL from config.js
-        const API_URL = typeof API_URL !== 'undefined' ? API_URL : 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE';
+        // Your Google Apps Script Web App URL
+        const API_URL = 'https://script.google.com/macros/s/AKfycbyHUClV1dCLZkH2DOnpVUax2lC38fLLOVkx3SUHUsyvtYcaBriraioJzfcU1S38QpUtEw/exec';
         
         let currentDate = new Date();
         let calendarData = {};

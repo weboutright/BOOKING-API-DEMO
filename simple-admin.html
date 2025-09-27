@@ -97,10 +97,9 @@
         <div id="toastMessage"></div>
     </div>
 
-    <script src="config.js"></script>
     <script>
-        // Load API URL from config.js - or replace this line with your URL directly
-        const API_URL = typeof window.API_URL !== 'undefined' ? window.API_URL : 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE';
+        // Your Google Apps Script Web App URL
+        const API_URL = 'https://script.google.com/macros/s/AKfycbyHUClV1dCLZkH2DOnpVUax2lC38fLLOVkx3SUHUsyvtYcaBriraioJzfcU1S38QpUtEw/exec';
         
         // Set minimum date to today
         document.getElementById('blockDate').min = new Date().toISOString().split('T')[0];
