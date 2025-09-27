@@ -1,238 +1,30 @@
-# 📅 Simple Booking System
+## Setup
 
-A clean, minimal appointment booking system using Google Apps Script and Google Calendar with Google authentication for admin access.
+### ✅ Already Done:
+- **Google Apps Script deployed** with URL: `AKfycbxLetqaF39eZPNEhbVOTIMY34goGNknj5G-1b15LSXHRLrOiRR6InFr0fA0R-_gWZu5Nw`
+- **HTML files updated** with your deployed URL
+- **Calendar ID configured** for `weboutright@gmail.com`
 
-## ⚡ Quick Start
+### 🧪 Test Your System:
 
-1. **Set up Google Apps Script** (follow detailed steps below)
-2. **Update `config.js`** with your Apps Script URL
-3. **Run locally**: `./start-booking-server.sh`
-4. **Open**: `http://localhost:8080/index.html`
-
-## ✨ Features
-
-- **Professional Calendar View**: Full month calendar showing availability at a glance
-- **One-Click Booking**: Click available dates to book instantly
-- **Real-time Availability**: See booked, available, and blocked time slots
-- **Admin Dashboard**: Manage bookings and block time slots (Google auth required)
-- **Google Calendar Integration**: All bookings go directly to your Google Calendar
-- **Email Notifications**: Automatic calendar invitations sent to customers
-- **Secure Admin Access**: Only calendar owners can access admin functions
-- **Responsive Design**: Works perfectly on desktop, tablet, and mobile
-
-## 📁 Project Structure
-
-```
-├── index.html             # Professional landing page with full calendar view
-├── simple-booking.html    # Customer booking form
-├── simple-admin.html      # Admin dashboard (requires Google auth)
-├── simple-appscript.js    # Google Apps Script backend code
-├── config.js             # Configuration file for API URL
-└── README.md             # This file
-```
-
-## 🚀 Quick Setup Guide
-
-### Step 1: Set up Google Apps Script
-
-1. **Go to Google Apps Script**
-   - Visit [script.google.com](https://script.google.com)
-   - Sign in with your Google account
-
-2. **Create a New Project**
-   - Click "New Project"
-   - Give it a name like "Simple Booking System"
-
-3. **Add the Backend Code**
-   - Delete the default `myFunction()` code
-   - Copy all code from `simple-appscript.js`
-   - Paste it into the Apps Script editor
-   - **IMPORTANT**: Update the `CALENDAR_ID` at the top of the script with your calendar ID
-   - Save the project (Ctrl+S or Cmd+S)
-
-4. **Enable Google Calendar API v3** ⚠️ **CRITICAL STEP**
-   - In your Apps Script project, click on "Services" (+ icon) in the left sidebar
-   - Search for "**Google Calendar API**" (this is the Calendar API v3)
-   - Select it from the list and click "Add"
-   - **Note**: The identifier shown will be "Calendar" - this is correct!
-   - This enables the Google Calendar API v3 for your script
-
-5. **Test Calendar Access**
-   - In the Apps Script editor, run the `debugCalendar()` function from the dropdown
-   - You'll be prompted to authorize the script if not already done
-   - Click "Review permissions" → "Advanced" → "Go to [Your Project Name]" → "Allow"
-   - Check the "Executions" tab to see the results - should show "Calendar API v3 working!"
-   - This step is crucial - without it, your script can't access the calendar!
-
-6. **Deploy as Web App**
-   - Click "Deploy" → "New deployment"
-   - Choose "Web app" as the type
-   - Set these options:
-     - **Execute as**: Me (your Google account)
-     - **Who has access**: Anyone
-   - Click "Deploy"
-   - **Important**: Copy the web app URL (it looks like `https://script.google.com/macros/s/ABC123.../exec`)
-   - ⚠️ **If you make changes later**: You must create a "New deployment" each time you update the code
-
-### Step 2: Configure Your Website
-
-1. **Update the API URL**
-   - Open `config.js`
-   - Replace `YOUR_GOOGLE_APPS_SCRIPT_URL_HERE` with your web app URL from Step 1
-   
-   ```javascript
-   const API_URL = 'https://script.google.com/macros/s/YOUR_ACTUAL_URL_HERE/exec';
-   ```
-
-2. **Test Your Setup**
-   - Open `index.html` in your web browser
-   - View the professional calendar interface with availability
-   - Click on available dates to book appointments
-   - Click "Admin Dashboard" to test admin access (requires Google login)
-
-### Step 3: Deploy Your Website
-
-Choose one of these options:
-
-#### Option A: GitHub Pages (Free)
-1. Push your code to a GitHub repository
-2. Go to Repository Settings → Pages
-3. Select source branch (usually `main`)
-4. Your site will be available at `https://yourusername.github.io/repository-name`
-
-#### Option B: Local Testing
-1. Use Python's built-in server:
+1. **Start local server:**
    ```bash
-   python3 -m http.server 8080
-   ```
-2. Open `http://localhost:8080` in your browser
-
-#### Option C: Other Hosting
-Upload all files to any web hosting service (Netlify, Vercel, etc.)
-
-## 🔧 How It Works
-
-### For Customers:
-1. Visit your booking page (`simple-booking.html`)
-2. Fill out the booking form (name, email, date, time, notes)
-3. Submit to create a calendar appointment
-4. Receive automatic email invitation
-
-### For Admins:
-1. Visit the admin page (`simple-admin.html`)
-2. System checks if you're logged into Google and have calendar access
-3. If authorized, you can:
-   - View all upcoming bookings
-   - Delete bookings if needed
-   - Block time slots to prevent bookings
-   - See who has calendar access
-
-## 🛡️ Security
-
-- **Google OAuth**: Admin access requires being logged into the Google account that owns the calendar
-- **No Passwords**: Uses Google's built-in authentication
-- **Calendar Permissions**: Only users with calendar access can perform admin actions
-- **Public Booking**: Anyone can book appointments, but they can't see existing bookings
-
-## 📞 Support & Troubleshooting
-
-### Common Issues:
-
-**"Connection Failed" Error:**
-- Check that your Apps Script is deployed as a web app
-- Verify the API URL in `config.js` is correct
-- Make sure "Who has access" is set to "Anyone"
-
-**"Admin Access Required" Error:**
-- You must be logged into the Google account that owns the calendar
-- Check that you have access to the calendar being used
-
-**"Calendar API v3 Not Enabled" Error:**
-- In Apps Script → Services, make sure "Google Calendar API" is added
-- The service identifier should show as "Calendar" - this is the v3 API
-- If missing, add it and redeploy your web app
-- Run a test function in Apps Script to trigger authorization
-
-**"Calendar Access Denied" or Permission Errors:**
-- Make sure you enabled the Google Calendar API in Apps Script (see Step 4 above)
-- Run a test function in Apps Script to trigger the authorization flow
-- Check that you clicked "Allow" when prompted for calendar permissions
-- If still failing, try removing and re-adding the Calendar API service
-
-**Bookings Not Appearing:**
-- Check your Google Calendar for new events
-- Verify the calendar ID in the Apps Script (default is 'primary')
-- Check the Apps Script logs for errors
-- Make sure the Calendar API is enabled and authorized
-
-### Getting Help:
-
-1. **Check Apps Script Logs**: Go to your Apps Script project → Executions tab to see error logs
-2. **Test Functions**: In Apps Script, try running `testBooking()` or `debugCalendar()` functions
-3. **Browser Console**: Open browser developer tools to see any JavaScript errors
-
-## 📝 Customization
-
-### Change Appointment Duration:
-In `simple-appscript.js`, find this line and change the value:
-```javascript
-const endTime = new Date(startTime.getTime() + 60 * 60000); // 1 hour = 60 minutes
-```
-
-### Change Available Time Slots:
-In `simple-booking.html`, edit the time options:
-```html
-<option value="09:00">9:00 AM</option>
-<option value="10:00">10:00 AM</option>
-<!-- Add or remove time slots here -->
-```
-
-### Use Different Calendar:
-1. **Find Your Calendar ID:**
-   - Go to [Google Calendar](https://calendar.google.com)
-   - Click the settings gear → "Settings"
-   - In the left sidebar, click on your calendar name
-   - Scroll down to "Calendar ID" and copy the ID
-   - It looks like: `d3988770ac40c0a9abd53580d8c6771b324f5cc8a14d888a935a7ea21f7bf0a2@group.calendar.google.com`
-
-2. **Update the Apps Script:**
-   ```javascript
-   const CALENDAR_ID = 'your-calendar-id@group.calendar.google.com';
+   ./run.sh
    ```
 
-## 🎯 What Makes This Simple
+2. **Test booking:**
+   - Open: `http://localhost:8080/book.html`
+   - Fill out the form and submit
+   - Check your Google Calendar for the new event
+   - Check your email for the calendar invitation
 
-- **No Database Required**: Uses Google Calendar as the data store
-- **No Server Setup**: Google Apps Script handles all backend logic
-- **No Complex Authentication**: Leverages Google's built-in auth system
-- **No Framework Dependencies**: Pure HTML, CSS, and JavaScript
-- **Mobile Friendly**: Responsive design works on all devices
+3. **Test admin access:**
+   - Open: `http://localhost:8080/admin.html`
+   - Must be logged into `weboutright@gmail.com`
+   - View events, block/unblock time slots
 
-## 📋 Project Files
-
-Your complete booking system consists of:
-- `index.html` - Main landing page with professional calendar view
-- `simple-booking.html` - Customer booking form  
-- `simple-admin.html` - Admin dashboard (requires Google auth)
-- `simple-appscript.js` - Backend code (deploy to Google Apps Script)
-- `config.js` - Configuration file with your API URL
-- `start-booking-server.sh` - Local development server script
-
-## 🔄 Updates & Maintenance
-
-To update your system:
-1. Make changes to your local files
-2. For backend changes: Copy updated code to Google Apps Script and redeploy
-3. For frontend changes: Upload updated HTML files to your hosting
-
-## 📄 License
-
-This project is open source and available under the [MIT License](LICENSE).
-
-## 🤝 Contributing
-
-Feel free to submit issues, fork the repository, and create pull requests for any improvements.
-
----
-
-**Made with ❤️ for simple appointment booking**
+### 📧 What Happens:
+- **Customer books** → Event created in Google Calendar
+- **Email invitation sent** automatically to customer
+- **Admin can manage** all bookings and blocked slots
+- **Only calendar owner** can access admin functions
