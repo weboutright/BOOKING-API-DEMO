@@ -72,6 +72,13 @@
         // Set minimum date to today
         document.getElementById('date').min = new Date().toISOString().split('T')[0];
         
+        // Check if a date was pre-selected from the calendar
+        const preSelectedDate = sessionStorage.getItem('selectedDate');
+        if (preSelectedDate) {
+            document.getElementById('date').value = preSelectedDate;
+            sessionStorage.removeItem('selectedDate'); // Clear after use
+        }
+        
         document.getElementById('bookingForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             

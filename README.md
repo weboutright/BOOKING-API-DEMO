@@ -4,16 +4,19 @@ A clean, minimal appointment booking system using Google Apps Script and Google 
 
 ## ✨ Features
 
-- **Customer Booking**: Simple form for customers to book appointments
+- **Professional Calendar View**: Full month calendar showing availability at a glance
+- **One-Click Booking**: Click available dates to book instantly
+- **Real-time Availability**: See booked, available, and blocked time slots
 - **Admin Dashboard**: Manage bookings and block time slots (Google auth required)
 - **Google Calendar Integration**: All bookings go directly to your Google Calendar
 - **Email Notifications**: Automatic calendar invitations sent to customers
 - **Secure Admin Access**: Only calendar owners can access admin functions
+- **Responsive Design**: Works perfectly on desktop, tablet, and mobile
 
 ## 📁 Project Structure
 
 ```
-├── simple-index.html      # Landing page with links to booking and admin
+├── index.html             # Professional landing page with full calendar view
 ├── simple-booking.html    # Customer booking form
 ├── simple-admin.html      # Admin dashboard (requires Google auth)
 ├── simple-appscript.js    # Google Apps Script backend code
@@ -59,8 +62,9 @@ A clean, minimal appointment booking system using Google Apps Script and Google 
    ```
 
 2. **Test Your Setup**
-   - Open `simple-index.html` in your web browser
-   - Click "Book an Appointment" to test customer booking
+   - Open `index.html` in your web browser
+   - View the professional calendar interface with availability
+   - Click on available dates to book appointments
    - Click "Admin Dashboard" to test admin access (requires Google login)
 
 ### Step 3: Deploy Your Website
