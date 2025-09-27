@@ -1,173 +1,192 @@
-# 🗓️ Booking System Setup Guide
+# 📅 Simple Booking System
 
-This comprehensive booking system includes a polished frontend and a powerful CMS for managing your appointments.
+A clean, minimal appointment booking system using Google Apps Script and Google Calendar with Google authentication for admin access.
 
-## 📁 Files Overview
+## ✨ Features
 
-- `booking.html` - Modern, Calendly-style booking form for customers
-- `admin.html` - Comprehensive CMS dashboard for managing bookings
-- `appscript_clean.js` - Enhanced Google Apps Script backend
-- `index.html` - Original booking form (you can keep or replace with booking.html)
+- **Customer Booking**: Simple form for customers to book appointments
+- **Admin Dashboard**: Manage bookings and block time slots (Google auth required)
+- **Google Calendar Integration**: All bookings go directly to your Google Calendar
+- **Email Notifications**: Automatic calendar invitations sent to customers
+- **Secure Admin Access**: Only calendar owners can access admin functions
 
-## 🚀 Quick Setup Steps
+## 📁 Project Structure
 
-### 1. Deploy the Apps Script Backend
+```
+├── simple-index.html      # Landing page with links to booking and admin
+├── simple-booking.html    # Customer booking form
+├── simple-admin.html      # Admin dashboard (requires Google auth)
+├── simple-appscript.js    # Google Apps Script backend code
+├── config.js             # Configuration file for API URL
+└── README.md             # This file
+```
 
-1. **Open Google Apps Script**: Go to [script.google.com](https://script.google.com)
-2. **Create New Project**: Click "New Project"
-3. **Replace Code**: Delete the default code and paste the entire content from `appscript_clean.js`
-4. **Save**: Click the save icon and name your project (e.g., "Booking System")
-5. **Deploy as Web App**:
-   - Click "Deploy" → "New Deployment"
+## 🚀 Quick Setup Guide
+
+### Step 1: Set up Google Apps Script
+
+1. **Go to Google Apps Script**
+   - Visit [script.google.com](https://script.google.com)
+   - Sign in with your Google account
+
+2. **Create a New Project**
+   - Click "New Project"
+   - Give it a name like "Simple Booking System"
+
+3. **Add the Backend Code**
+   - Delete the default `myFunction()` code
+   - Copy all code from `simple-appscript.js`
+   - Paste it into the Apps Script editor
+   - Save the project (Ctrl+S or Cmd+S)
+
+4. **Deploy as Web App**
+   - Click "Deploy" → "New deployment"
    - Choose "Web app" as the type
-   - Set "Who has access" to "Anyone"
+   - Set these options:
+     - **Execute as**: Me (your Google account)
+     - **Who has access**: Anyone
    - Click "Deploy"
-   - Copy the Web App URL (you'll need this for step 2)
+   - **Important**: Copy the web app URL (it looks like `https://script.google.com/macros/s/ABC123.../exec`)
 
-### 2. Configure the Frontend Files
+### Step 2: Configure Your Website
 
-1. **Update API URLs**: In both `booking.html` and `admin.html`, find this line:
+1. **Update the API URL**
+   - Open `config.js`
+   - Replace `YOUR_GOOGLE_APPS_SCRIPT_URL_HERE` with your web app URL from Step 1
+   
    ```javascript
-   API_URL: 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE',
+   const API_URL = 'https://script.google.com/macros/s/YOUR_ACTUAL_URL_HERE/exec';
    ```
-   Replace with your actual Web App URL from step 1.
 
-2. **Upload Files**: Upload both HTML files to your web hosting or serve them locally.
+2. **Test Your Setup**
+   - Open `simple-index.html` in your web browser
+   - Click "Book an Appointment" to test customer booking
+   - Click "Admin Dashboard" to test admin access (requires Google login)
 
-### 3. Customize Settings (Optional)
+### Step 3: Deploy Your Website
 
-In the Apps Script editor, you can modify:
+Choose one of these options:
 
-- **Calendar ID**: In the `getCalendarId()` function, change `'primary'` to your specific calendar ID if needed
-- **Business Hours**: The default available times are 9 AM to 4 PM
-- **Appointment Duration**: Default is 60 minutes
+#### Option A: GitHub Pages (Free)
+1. Push your code to a GitHub repository
+2. Go to Repository Settings → Pages
+3. Select source branch (usually `main`)
+4. Your site will be available at `https://yourusername.github.io/repository-name`
 
-## 🎨 Features
+#### Option B: Local Testing
+1. Use Python's built-in server:
+   ```bash
+   python3 -m http.server 8080
+   ```
+2. Open `http://localhost:8080` in your browser
 
-### Customer Booking Interface (booking.html)
-- ✅ Beautiful, responsive design inspired by Calendly
-- ✅ Multi-step booking process with progress indicator
-- ✅ Interactive calendar with date selection
-- ✅ Real-time availability checking
-- ✅ Form validation and error handling
-- ✅ Success confirmation with booking details
-- ✅ Mobile-friendly design
+#### Option C: Other Hosting
+Upload all files to any web hosting service (Netlify, Vercel, etc.)
 
-### Admin CMS Dashboard (admin.html)
-- 📊 **Dashboard**: View booking statistics and recent activity
-- 📅 **Calendar Management**: Block dates/times, view blocked slots
-- ⚙️ **Settings**: Configure business hours, working days, appointment duration
-- 📋 **Bookings**: View, filter, and manage all appointments
-- 🔧 **Calendar Integration**: Test connection and manage calendar settings
+## 🔧 How It Works
 
-### Backend Features (appscript_clean.js)
-- 🔒 Enhanced security with input validation
-- 🚫 Time slot blocking system for admin
-- 💾 Settings storage using Google Apps Script Properties
-- 📧 Automatic email invitations
-- 🔍 Availability checking (both calendar events and blocked slots)
-- 📝 Comprehensive logging for debugging
-- 🧪 Built-in test functions
+### For Customers:
+1. Visit your booking page (`simple-booking.html`)
+2. Fill out the booking form (name, email, date, time, notes)
+3. Submit to create a calendar appointment
+4. Receive automatic email invitation
 
-## 🛠️ Advanced Configuration
+### For Admins:
+1. Visit the admin page (`simple-admin.html`)
+2. System checks if you're logged into Google and have calendar access
+3. If authorized, you can:
+   - View all upcoming bookings
+   - Delete bookings if needed
+   - Block time slots to prevent bookings
+   - See who has calendar access
 
-### Custom Business Rules
+## 🛡️ Security
 
-You can customize the booking rules in the Apps Script:
+- **Google OAuth**: Admin access requires being logged into the Google account that owns the calendar
+- **No Passwords**: Uses Google's built-in authentication
+- **Calendar Permissions**: Only users with calendar access can perform admin actions
+- **Public Booking**: Anyone can book appointments, but they can't see existing bookings
 
-```javascript
-// In the processBooking function, modify these checks:
-
-// Prevent bookings too far in advance
-const maxAdvanceDays = 30; // Allow bookings up to 30 days ahead
-
-// Minimum notice required
-const minNoticeHours = 2; // Require at least 2 hours notice
-
-// Working days (modify in CMS settings or here)
-const workingDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
-```
-
-### Adding Custom Time Slots
-
-In the `loadAvailableTimes()` function in your HTML files, customize the available times:
-
-```javascript
-// Example: 30-minute intervals from 9 AM to 5 PM
-this.availableTimes = [
-    '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
-    '12:00', '12:30', '13:00', '13:30', '14:00', '14:30',
-    '15:00', '15:30', '16:00', '16:30', '17:00'
-];
-```
-
-## 🎨 Customization Options
-
-### Styling
-- Colors: Modify the CSS custom properties in the `<style>` sections
-- Fonts: Change the Google Fonts import to use your preferred font
-- Layout: Adjust the Tailwind classes for different layouts
-
-### Branding
-- Update page titles and headers
-- Replace placeholder text with your business information
-- Add your logo by modifying the header sections
-
-## 🧪 Testing
-
-### Test the Backend
-In the Apps Script editor, run these functions to test:
-
-```javascript
-testBooking()     // Test booking logic
-testDoPost()      // Test complete request flow
-debugCalendar()   // Test calendar access
-testCMSFunctions() // Test admin functions
-```
-
-### Test the Frontend
-1. Open the booking form in a browser
-2. Try booking an appointment
-3. Access the admin dashboard
-4. Test blocking time slots
-
-## 📱 Mobile Optimization
-
-Both interfaces are fully responsive and work great on:
-- ✅ Desktop computers
-- ✅ Tablets
-- ✅ Mobile phones
-
-## 🔒 Security Features
-
-- Input validation on both client and server
-- CORS handling for cross-origin requests
-- Sanitized error messages
-- Protected admin functions
-
-## 🆘 Troubleshooting
+## 📞 Support & Troubleshooting
 
 ### Common Issues:
 
-1. **"API URL not found"**: Make sure you've updated the API_URL in your HTML files
-2. **"Calendar not found"**: Check your calendar ID in the `getCalendarId()` function
-3. **No available times**: Ensure your calendar is accessible and not fully booked
-4. **Permission errors**: Make sure the Apps Script has calendar access permissions
+**"Connection Failed" Error:**
+- Check that your Apps Script is deployed as a web app
+- Verify the API URL in `config.js` is correct
+- Make sure "Who has access" is set to "Anyone"
 
-### Debug Mode:
-Check the Apps Script logs (View → Logs) for detailed error information.
+**"Admin Access Required" Error:**
+- You must be logged into the Google account that owns the calendar
+- Check that you have access to the calendar being used
 
-## 🚀 Go Live!
+**Bookings Not Appearing:**
+- Check your Google Calendar for new events
+- Verify the calendar ID in the Apps Script (default is 'primary')
+- Check the Apps Script logs for errors
 
-Once everything is configured and tested:
+### Getting Help:
 
-1. Upload your HTML files to your web hosting
-2. Share the booking link with your customers
-3. Use the admin dashboard to manage your appointments
-4. Monitor the Apps Script logs for any issues
+1. **Check Apps Script Logs**: Go to your Apps Script project → Executions tab to see error logs
+2. **Test Functions**: In Apps Script, try running `testBooking()` or `debugCalendar()` functions
+3. **Browser Console**: Open browser developer tools to see any JavaScript errors
 
-## 🎉 You're All Set!
+## 📝 Customization
 
-Your professional booking system is now ready to use. Customers can book appointments through the beautiful interface, and you can manage everything through the powerful admin dashboard.
+### Change Appointment Duration:
+In `simple-appscript.js`, find this line and change the value:
+```javascript
+const endTime = new Date(startTime.getTime() + 60 * 60000); // 1 hour = 60 minutes
+```
 
-Need help? Check the Apps Script logs or test the individual functions to diagnose any issues.
+### Change Available Time Slots:
+In `simple-booking.html`, edit the time options:
+```html
+<option value="09:00">9:00 AM</option>
+<option value="10:00">10:00 AM</option>
+<!-- Add or remove time slots here -->
+```
+
+### Use Different Calendar:
+In `simple-appscript.js`, change the calendar ID:
+```javascript
+function getCalendarId() {
+  return 'your-email@gmail.com'; // or specific calendar ID
+}
+```
+
+## 🎯 What Makes This Simple
+
+- **No Database Required**: Uses Google Calendar as the data store
+- **No Server Setup**: Google Apps Script handles all backend logic
+- **No Complex Authentication**: Leverages Google's built-in auth system
+- **No Framework Dependencies**: Pure HTML, CSS, and JavaScript
+- **Mobile Friendly**: Responsive design works on all devices
+
+## 📋 Files You Need
+
+After setup, you'll only use these files:
+- `simple-index.html` - Landing page
+- `simple-booking.html` - Customer booking form  
+- `simple-admin.html` - Admin dashboard
+- `simple-appscript.js` - Backend code (goes in Google Apps Script)
+- `config.js` - Configuration file
+
+## 🔄 Updates & Maintenance
+
+To update your system:
+1. Make changes to your local files
+2. For backend changes: Copy updated code to Google Apps Script and redeploy
+3. For frontend changes: Upload updated HTML files to your hosting
+
+## 📄 License
+
+This project is open source and available under the [MIT License](LICENSE).
+
+## 🤝 Contributing
+
+Feel free to submit issues, fork the repository, and create pull requests for any improvements.
+
+---
+
+**Made with ❤️ for simple appointment booking**

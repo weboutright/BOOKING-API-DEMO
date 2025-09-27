@@ -1,17 +1,6 @@
-// Configuration file - DO NOT commit the production version to GitHub
-const CONFIG = {
-    // Development configuration (safe to commit)
-    development: {
-        API_URL: 'https://script.google.com/macros/s/AKfycbzeQduoEzWXTH7yKUs3FUhTCzQwGFu8X27ksMQGh7YM9ZDBN94eGWi0AwinSEU-Lzm9/exec',
-        DEBUG: true
-    },
-    
-    // Production configuration (same URL for now)
-    production: {
-        API_URL: 'https://script.google.com/macros/s/AKfycbzeQduoEzWXTH7yKUs3FUhTCzQwGFu8X27ksMQGh7YM9ZDBN94eGWi0AwinSEU-Lzm9/exec',
-        DEBUG: false
-    }
-};
+// Simple Booking System Configuration
+// Replace this URL with your own Google Apps Script Web App URL
+const API_URL = 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE';
 
 // Auto-detect environment based on hostname
 function getConfig() {
