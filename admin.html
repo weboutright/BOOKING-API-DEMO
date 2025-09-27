@@ -30,9 +30,13 @@
                     <button @click="refreshData()" class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg transition-colors">
                         <i class="fas fa-sync-alt mr-2"></i>Refresh
                     </button>
-                    <div class="h-8 w-8 bg-white/20 rounded-full flex items-center justify-center">
-                        <i class="fas fa-user text-sm"></i>
+                    <div class="flex items-center space-x-2 bg-white/20 px-3 py-2 rounded-lg">
+                        <i class="fab fa-google text-sm"></i>
+                        <span x-show="userInfo" class="text-sm" x-text="userInfo?.email || 'Admin User'"></span>
                     </div>
+                    <button @click="logout()" class="bg-white/20 hover:bg-white/30 px-3 py-2 rounded-lg transition-colors">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
                 </div>
             </div>
         </div>
@@ -436,8 +440,9 @@
                 // Get API URL from config
                 API_URL: typeof ACTIVE_CONFIG !== 'undefined' ? ACTIVE_CONFIG.API_URL : 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE',
                 
-                // Admin authentication
-                adminPassword: '',
+                // Admin authentication via Google
+                isAuthenticated: false,
+                userInfo: null,
                 
                 stats: {
                     todayBookings: 0,
@@ -476,13 +481,20 @@
                 
                 async init() {
                     // Check authentication
-                    this.adminPassword = sessionStorage.getItem('adminAuth');
-                    if (!this.adminPassword) {
+                    const authToken = sessionStorage.getItem('adminAuth');
+                    const userInfoStr = sessionStorage.getItem('adminUserInfo');
+                    
+                    if (!authToken || authToken !== 'google-authenticated') {
                         // Redirect to login if not authenticated
                         window.location.href = 'admin-login.html';
                         return;
                     }
                     
+                    if (userInfoStr) {
+                        this.userInfo = JSON.parse(userInfoStr);
+                    }
+                    
+                    this.isAuthenticated = true;
                     await this.loadInitialData();
                 },
                 
@@ -548,8 +560,7 @@
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
                                 action: 'blockSlot',
-                                data: this.blockForm,
-                                adminPassword: this.adminPassword
+                                data: this.blockForm
                             })
                         });
                         
@@ -671,6 +682,15 @@
                     setTimeout(() => {
                         this.message.show = false;
                     }, 5000);
+                },
+                
+                logout() {
+                    // Clear authentication
+                    sessionStorage.removeItem('adminAuth');
+                    sessionStorage.removeItem('adminUserInfo');
+                    
+                    // Redirect to login
+                    window.location.href = 'admin-login.html';
                 },
                 
                 // Quick action methods

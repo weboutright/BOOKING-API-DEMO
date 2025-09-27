@@ -16,31 +16,31 @@
     <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
         <div class="text-center mb-8">
             <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i class="fas fa-shield-alt text-2xl text-indigo-600"></i>
+                <i class="fab fa-google text-2xl text-indigo-600"></i>
             </div>
             <h1 class="text-2xl font-bold text-gray-800 mb-2">Admin Access</h1>
-            <p class="text-gray-600">Enter your admin password to continue</p>
+            <p class="text-gray-600">Sign in with your Google account to access the admin dashboard</p>
         </div>
 
-        <form id="loginForm" class="space-y-6">
-            <div>
-                <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Admin Password</label>
-                <input type="password" 
-                       id="password" 
-                       name="password"
-                       required
-                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-                       placeholder="Enter admin password">
+        <div class="space-y-6">
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div class="flex items-start">
+                    <i class="fas fa-info-circle text-blue-600 mt-1 mr-3"></i>
+                    <div class="text-sm text-blue-800">
+                        <p class="font-medium mb-1">Google Authentication Required</p>
+                        <p>You must be signed into the Google account that has access to the booking calendar to use admin functions.</p>
+                    </div>
+                </div>
             </div>
 
-            <button type="submit" 
+            <button id="testAccessBtn" 
                     class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors">
-                <span id="loginText">Access Admin Dashboard</span>
+                <span id="loginText">Test Admin Access</span>
                 <span id="loginSpinner" class="hidden">
-                    <i class="fas fa-spinner fa-spin mr-2"></i>Verifying...
+                    <i class="fas fa-spinner fa-spin mr-2"></i>Checking Access...
                 </span>
             </button>
-        </form>
+        </div>
 
         <div id="errorMessage" class="hidden mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg">
         </div>
@@ -54,18 +54,12 @@
 
     <script src="config.js"></script>
     <script>
-        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+        document.getElementById('testAccessBtn').addEventListener('click', async function(e) {
             e.preventDefault();
             
-            const password = document.getElementById('password').value;
             const loginText = document.getElementById('loginText');
             const loginSpinner = document.getElementById('loginSpinner');
             const errorMessage = document.getElementById('errorMessage');
-            
-            if (!password) {
-                showError('Please enter the admin password');
-                return;
-            }
             
             // Show loading state
             loginText.classList.add('hidden');
@@ -73,33 +67,39 @@
             errorMessage.classList.add('hidden');
             
             try {
-                // Test admin authentication
+                // Test admin access without password
                 const response = await fetch(ACTIVE_CONFIG.API_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        action: 'testCalendar',
-                        adminPassword: password
+                        action: 'getUserInfo'
                     })
                 });
                 
                 const result = await response.json();
                 
                 if (result.status === 'success') {
-                    // Store admin password temporarily (in memory only)
-                    sessionStorage.setItem('adminAuth', password);
+                    // Store authentication flag
+                    sessionStorage.setItem('adminAuth', 'google-authenticated');
+                    sessionStorage.setItem('adminUserInfo', JSON.stringify(result.userInfo));
                     
                     // Redirect to admin dashboard
                     window.location.href = 'admin.html';
                 } else {
-                    showError('Invalid admin password');
+                    if (result.message.includes('Google authentication')) {
+                        showError('Please sign in to Google first, then try again.');
+                    } else if (result.message.includes('calendar access')) {
+                        showError('Your Google account does not have access to the booking calendar.');
+                    } else {
+                        showError(result.message || 'Access denied. Please ensure you are signed into the correct Google account.');
+                    }
                 }
                 
             } catch (error) {
-                console.error('Login error:', error);
-                showError('Connection error. Please check if admin functions are enabled in the backend.');
+                console.error('Access test error:', error);
+                showError('Connection error. Please check your internet connection and try again.');
             } finally {
                 // Reset loading state
                 loginText.classList.remove('hidden');
@@ -115,6 +115,7 @@
         
         // Clear any existing session on page load
         sessionStorage.removeItem('adminAuth');
+        sessionStorage.removeItem('adminUserInfo');
     </script>
 </body>
 </html>
