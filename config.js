@@ -2,13 +2,13 @@
 const CONFIG = {
     // Development configuration (safe to commit)
     development: {
-        API_URL: 'YOUR_DEVELOPMENT_APPS_SCRIPT_URL_HERE',
+        API_URL: 'https://script.google.com/macros/s/AKfycbzeQduoEzWXTH7yKUs3FUhTCzQwGFu8X27ksMQGh7YM9ZDBN94eGWi0AwinSEU-Lzm9/exec',
         DEBUG: true
     },
     
-    // Production configuration (DO NOT commit real URL)
+    // Production configuration (same URL for now)
     production: {
-        API_URL: 'YOUR_PRODUCTION_APPS_SCRIPT_URL_HERE',
+        API_URL: 'https://script.google.com/macros/s/AKfycbzeQduoEzWXTH7yKUs3FUhTCzQwGFu8X27ksMQGh7YM9ZDBN94eGWi0AwinSEU-Lzm9/exec',
         DEBUG: false
     }
 };
