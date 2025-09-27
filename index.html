@@ -206,7 +206,7 @@
 
     <script>
         // Load API URL from config.js
-        const API_URL = typeof window.API_URL !== 'undefined' ? window.API_URL : 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE';
+        const API_URL = typeof API_URL !== 'undefined' ? API_URL : 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE';
         
         let currentDate = new Date();
         let calendarData = {};
@@ -277,9 +277,8 @@
                 
             } catch (error) {
                 console.error('Calendar loading error:', error);
-                // Show calendar anyway with limited data
-                renderCalendar();
-                showCalendar();
+                // Show error state instead of mock data
+                showError();
             }
         }
         
@@ -308,8 +307,9 @@
                 const isToday = today.toDateString() === new Date(year, month, day).toDateString();
                 const isPast = new Date(year, month, day) < today;
                 
-                // Determine availability (mock data for now)
-                const hasBookings = Math.random() > 0.7; // 30% chance of bookings
+                // Get real availability data from backend
+                const dayData = calendarData[currentDateStr] || {};
+                const hasBookings = dayData.hasEvents || false;
                 const isWeekend = new Date(year, month, day).getDay() === 0 || new Date(year, month, day).getDay() === 6;
                 
                 let dayClass = 'calendar-day h-24 p-2 rounded-xl border-2 cursor-pointer flex flex-col justify-between ';
