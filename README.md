@@ -40,9 +40,23 @@ A clean, minimal appointment booking system using Google Apps Script and Google 
    - Delete the default `myFunction()` code
    - Copy all code from `simple-appscript.js`
    - Paste it into the Apps Script editor
+   - **IMPORTANT**: Update the `CALENDAR_ID` at the top of the script with your calendar ID
    - Save the project (Ctrl+S or Cmd+S)
 
-4. **Deploy as Web App**
+4. **Enable Google Calendar API** ⚠️ **IMPORTANT STEP**
+   - In your Apps Script project, click on "Services" (+ icon) in the left sidebar
+   - Search for "Google Calendar API"
+   - Click on it and then click "Add"
+   - This gives your script permission to access Google Calendar
+
+5. **Test Calendar Access**
+   - In the Apps Script editor, run any function (like `debugCalendar`) 
+   - You'll be prompted to authorize the script
+   - Click "Review permissions" → "Advanced" → "Go to [Your Project Name]"
+   - Click "Allow" to grant calendar access
+   - This step is crucial - without it, your script can't access the calendar!
+
+6. **Deploy as Web App**
    - Click "Deploy" → "New deployment"
    - Choose "Web app" as the type
    - Set these options:
@@ -50,6 +64,7 @@ A clean, minimal appointment booking system using Google Apps Script and Google 
      - **Who has access**: Anyone
    - Click "Deploy"
    - **Important**: Copy the web app URL (it looks like `https://script.google.com/macros/s/ABC123.../exec`)
+   - ⚠️ **If you make changes later**: You must create a "New deployment" each time you update the code
 
 ### Step 2: Configure Your Website
 
@@ -124,10 +139,17 @@ Upload all files to any web hosting service (Netlify, Vercel, etc.)
 - You must be logged into the Google account that owns the calendar
 - Check that you have access to the calendar being used
 
+**"Calendar Access Denied" or Permission Errors:**
+- Make sure you enabled the Google Calendar API in Apps Script (see Step 4 above)
+- Run a test function in Apps Script to trigger the authorization flow
+- Check that you clicked "Allow" when prompted for calendar permissions
+- If still failing, try removing and re-adding the Calendar API service
+
 **Bookings Not Appearing:**
 - Check your Google Calendar for new events
 - Verify the calendar ID in the Apps Script (default is 'primary')
 - Check the Apps Script logs for errors
+- Make sure the Calendar API is enabled and authorized
 
 ### Getting Help:
 
@@ -152,12 +174,17 @@ In `simple-booking.html`, edit the time options:
 ```
 
 ### Use Different Calendar:
-In `simple-appscript.js`, change the calendar ID:
-```javascript
-function getCalendarId() {
-  return 'your-email@gmail.com'; // or specific calendar ID
-}
-```
+1. **Find Your Calendar ID:**
+   - Go to [Google Calendar](https://calendar.google.com)
+   - Click the settings gear → "Settings"
+   - In the left sidebar, click on your calendar name
+   - Scroll down to "Calendar ID" and copy the ID
+   - It looks like: `d3988770ac40c0a9abd53580d8c6771b324f5cc8a14d888a935a7ea21f7bf0a2@group.calendar.google.com`
+
+2. **Update the Apps Script:**
+   ```javascript
+   const CALENDAR_ID = 'your-calendar-id@group.calendar.google.com';
+   ```
 
 ## 🎯 What Makes This Simple
 
