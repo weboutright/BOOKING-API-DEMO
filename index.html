@@ -536,37 +536,62 @@ Execution completed
                 notes: document.getElementById('notes').value.trim()
             };
 
+            console.log('Sending booking data:', formData);
+
             try {
+                // Method 1: Standard fetch with proper CORS headers
                 const response = await fetch(SCRIPT_URL, {
                     method: 'POST',
-                    mode: 'cors',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'text/plain', // Use text/plain to avoid CORS preflight
                     },
                     body: JSON.stringify(formData)
                 });
-                
+
+                // Check if response is ok
                 if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
 
-                const result = await response.json();
+                const responseText = await response.text();
+                console.log('Raw response:', responseText);
+                
+                let result;
+                try {
+                    result = JSON.parse(responseText);
+                } catch (parseError) {
+                    console.error('JSON parse error:', parseError);
+                    throw new Error('Invalid response format from server');
+                }
 
                 if (result.status === 'success') {
                     showMessage('success', result.message);
                 } else {
-                    showMessage('error', result.message);
+                    showMessage('error', result.message || 'An error occurred while processing your booking.');
                 }
 
             } catch (error) {
-                console.error('Booking Error:', error);
+                console.error('Booking Error Details:', {
+                    name: error.name,
+                    message: error.message,
+                    stack: error.stack
+                });
                 
-                let displayMessage = 'Unable to complete booking. Please try again or contact support.';
+                let displayMessage;
                 
-                if (error.message.includes('NetworkError') || error.message.includes('Failed to fetch')) {
-                    displayMessage = 'Connection error. Please check your internet connection and try again.';
-                } else if (error.message.includes('HTTP error')) {
-                    displayMessage = `Server error (${error.message}). Please try again later.`;
+                // Handle specific error types
+                if (error.message.includes('Failed to fetch')) {
+                    displayMessage = 'Connection failed. Please ensure:\n• Your internet connection is working\n• The Google Apps Script is deployed with "Anyone" access\n• The URL is correct';
+                } else if (error.name === 'TypeError') {
+                    displayMessage = 'Network error occurred. Please check your Google Apps Script deployment settings and try again.';
+                } else if (error.message.includes('HTTP 4')) {
+                    displayMessage = 'Access denied. Please verify the Google Apps Script is deployed with "Anyone" access permission.';
+                } else if (error.message.includes('HTTP 5')) {
+                    displayMessage = 'Server error. There may be an issue with the Google Apps Script. Please try again in a few moments.';
+                } else if (error.message.includes('Invalid response')) {
+                    displayMessage = 'Received invalid response from server. The booking may have been processed - please check your email.';
+                } else {
+                    displayMessage = `Error: ${error.message}. Please try again or contact support.`;
                 }
 
                 showMessage('error', displayMessage);
@@ -575,8 +600,41 @@ Execution completed
             }
         }
 
-        // Initialize when page loads
-        window.addEventListener('DOMContentLoaded', init);
+        // --- Connectivity Test ---
+        async function testConnection() {
+            console.log('Testing connection to Apps Script...');
+            
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'text/plain',
+                    }
+                });
+                
+                const result = await response.text();
+                console.log('Connection test result:', result);
+                return true;
+            } catch (error) {
+                console.error('Connection test failed:', error);
+                return false;
+            }
+        }
+
+        // Test connection on page load
+        window.addEventListener('DOMContentLoaded', async () => {
+            init();
+            
+            // Test connectivity
+            setTimeout(async () => {
+                const connected = await testConnection();
+                if (!connected) {
+                    console.warn('Connection test failed - there may be issues with the Apps Script deployment');
+                }
+            }, 1000);
+        });
+
+        // Initialize when page loads - this line was moved up to the testConnection function
     </script>
 </body>
 </html>
