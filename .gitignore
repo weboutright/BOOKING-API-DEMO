@@ -1,0 +1,42 @@
+# Sensitive configuration files
+config.production.js
+.env
+.env.local
+.env.production
+
+# Admin credentials and passwords
+admin-credentials.txt
+passwords.txt
+
+# API keys and secrets
+api-keys.txt
+secrets.json
+
+# Local development files
+.DS_Store
+Thumbs.db
+*.log
+
+# Node modules (if you add build tools later)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# Production builds (if you add build process)
+dist/
+build/
+
+# Test files
+test-credentials.json
+test-api-urls.txt
