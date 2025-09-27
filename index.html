@@ -46,7 +46,7 @@
         
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3e2c3 100%);
             min-height: 100vh;
         }
         
@@ -62,7 +62,36 @@
             animation: slide-in 0.3s ease-out;
         }
         
-        .time-slot {
+        .time-slot {1:29:50 PM
+Notice
+Execution started
+1:29:50 PM
+Info
+=== TESTING DOPOST FUNCTION ===
+1:29:50 PM
+Info
+=== NEW BOOKING REQUEST ===
+1:29:50 PM
+Info
+Request received at: 2025-09-27T03:29:50.607Z
+1:29:50 PM
+Info
+Raw request data: {"name":"Test User","email":"test@example.com","date":"2025-09-28","time":"10:00","notes":"Testing the complete flow"}
+1:29:50 PM
+Info
+Parsed booking data: {"name":"Test User","email":"test@example.com","date":"2025-09-28","time":"10:00","notes":"Testing the complete flow"}
+1:29:51 PM
+Info
+Successfully created event: Discovery Consultation: Test User at 9/28/2025, 10:00:00 AM
+1:29:51 PM
+Info
+Response: success - Appointment confirmed for 9/28/2025 at 10:00 AM. A calendar invitation has been sent to test@example.com.
+1:29:51 PM
+Info
+DoPost result: {"status":"success","message":"Appointment confirmed for 9/28/2025 at 10:00 AM. A calendar invitation has been sent to test@example.com.","timestamp":"2025-09-27T03:29:51.402Z","eventId":"hp1ml0k5r8rssm29vb4o12ifu8@google.com"}
+1:29:51 PM
+Notice
+Execution completed
             transition: all 0.2s ease;
         }
         
@@ -231,8 +260,8 @@
     </div>
 
     <script>
-        // *** IMPORTANT: YOUR DEPLOYED APPS SCRIPT URL GOES HERE ***
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzuDXTp4PI1j5fOJltfcSo57mcQgTImfXnd_SZ9yY7Sw-H5P-E-b9Z-btFimpnRG60T/exec'; 
+        // *** APPS SCRIPT WEB APP URL ***
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzeQduoEzWXTH7yKUs3FUhTCzQwGFu8X27ksMQGh7YM9ZDBN94eGWi0AwinSEU-Lzm9/exec'; 
 
         // DOM Elements
         const form = document.getElementById('booking-form');
