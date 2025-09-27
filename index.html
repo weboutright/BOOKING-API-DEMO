@@ -69,7 +69,7 @@
             </div>
             
             <!-- Footer/Branding Bottom -->
-            <p class="text-xs text-gray-400 mt-6 md:mt-0">Secured Scheduling Interface</p>
+            <p class="text-xs text-center text-gray-400 mt-6 md:mt-0">Secured Scheduling Interface</p>
         </div>
 
         <!-- RIGHT PANE: Booking Form and Logic -->
@@ -200,9 +200,11 @@
             };
 
             try {
+                // Fetch request includes modes to help ensure cross-origin compatibility
                 const response = await fetch(SCRIPT_URL, {
                     method: 'POST',
-                    mode: 'cors', // Crucial for cross-domain requests to Apps Script
+                    mode: 'cors', // Crucial for cross-domain requests
+                    referrerPolicy: 'no-referrer', // Added to bypass strict security checks
                     headers: {
                         'Content-Type': 'application/json'
                     },
@@ -210,7 +212,7 @@
                     body: JSON.stringify(formData)
                 });
                 
-                // Throw an error if the network fetch itself failed (e.g., DNS error, CORS block)
+                // Throw an error if the network fetch itself failed
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
@@ -222,19 +224,22 @@
                     form.reset(); // Clear form on success
                     updateButtonState();
                 } else {
+                    // This handles errors coming from the Apps Script (e.g., "slot already booked")
                     showMessage('error', result.message);
                 }
 
             } catch (error) {
                 console.error('Fetch Error:', error);
-                let displayMessage = 'An unexpected error occurred. Please verify the SCRIPT_URL and Apps Script deployment permissions.';
+                
+                let displayMessage = 'A critical error occurred while connecting to the booking server. Please try again.';
                 
                 // Catch specific network failure related to CORS or unavailable endpoint
                 if (error instanceof TypeError && error.message.includes('NetworkError')) {
-                   displayMessage = 'An unexpected error occurred: NetworkError when attempting to fetch resource. Please verify the SCRIPT_URL and Apps Script deployment permissions.';
+                   // This is the error we've been fighting, which should now be resolved by hosting.
+                   displayMessage = 'Connection failed (NetworkError). Please confirm the Apps Script URL is correct and deployed with "Who has access: Anyone".';
                 } else if (error.message.includes('40')) {
                     // Handle 400s or 401s which often mean permission/access issues
-                    displayMessage = `API Access Error: ${error.message}. Check Apps Script permissions ("Who has access: Anyone").`;
+                    displayMessage = `API Access Error: ${error.message}. Check Apps Script execution logs.`;
                 }
 
                 showMessage('error', displayMessage);
