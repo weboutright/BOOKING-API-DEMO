@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <div id="loginPrompt" class="max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">
+            <h1 class="text-2xl font-bold text-center mb-4">Admin Access Required</h1>
+            <p class="text-gray-600 mb-4">You must be logged into Google to access the admin dashboard.</p>
+            <button onclick="checkAuth()" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700">
+                Check Access
+            </button>
+            <div id="authMessage" class="mt-4 p-3 rounded-md hidden"></div>
+        </div>
+
+        <div id="adminPanel" class="hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl font-bold">Admin Dashboard</h1>
+                <div class="text-sm text-gray-600">
+                    Logged in as: <span id="userEmail"></span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Block Time Slot -->
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h2 class="text-xl font-semibold mb-4">Block Time Slot</h2>
+                    <form id="blockForm" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                            <input type="date" id="blockDate" required
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Start Time</label>
+                                <input type="time" id="blockStartTime" required
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">End Time</label>
+                                <input type="time" id="blockEndTime" required
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Reason</label>
+                            <input type="text" id="blockReason" placeholder="e.g., Vacation, Meeting"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
+                        </div>
+                        <button type="submit" class="w-full bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700">
+                            Block Time Slot
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Current Events -->
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold">Upcoming Events</h2>
+                        <button onclick="loadEvents()" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 text-sm">
+                            Refresh
+                        </button>
+                    </div>
+                    <div id="eventsList" class="space-y-2 max-h-96 overflow-y-auto">
+                        <p class="text-gray-500">Loading events...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="message" class="mt-6 p-4 rounded-md hidden"></div>
+        </div>
+    </div>
+
+    <script>
+        // Your deployed Google Apps Script URL
+        const API_URL = 'https://script.google.com/macros/s/AKfycbxLetqaF39eZPNEhbVOTIMY34goGNknj5G-1b15LSXHRLrOiRR6InFr0fA0R-_gWZu5Nw/exec';
+
+        // Set minimum date to today
+        document.getElementById('blockDate').min = new Date().toISOString().split('T')[0];
+
+        // Check authentication on page load
+        checkAuth();
+
+        async function checkAuth() {
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'admin_check' })
+                });
+
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    document.getElementById('loginPrompt').classList.add('hidden');
+                    document.getElementById('adminPanel').classList.remove('hidden');
+                    document.getElementById('userEmail').textContent = result.email;
+                    loadEvents();
+                } else {
+                    showAuthMessage('Access denied. Please make sure you are logged into the correct Google account.', 'error');
+                }
+
+            } catch (error) {
+                showAuthMessage('Network error. Please try again.', 'error');
+            }
+        }
+
+        function showAuthMessage(text, type) {
+            const messageEl = document.getElementById('authMessage');
+            messageEl.textContent = text;
+            messageEl.className = `mt-4 p-3 rounded-md ${type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`;
+            messageEl.classList.remove('hidden');
+        }
+
+        // Handle block form submission
+        document.getElementById('blockForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = {
+                action: 'block_slot',
+                date: document.getElementById('blockDate').value,
+                startTime: document.getElementById('blockStartTime').value,
+                endTime: document.getElementById('blockEndTime').value,
+                reason: document.getElementById('blockReason').value
+            };
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+                showMessage(result.message, result.status);
+
+                if (result.status === 'success') {
+                    document.getElementById('blockForm').reset();
+                    loadEvents();
+                }
+
+            } catch (error) {
+                showMessage('Network error. Please try again.', 'error');
+            }
+        });
+
+        async function loadEvents() {
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'get_events',
+                        startDate: new Date().toISOString().split('T')[0],
+                        endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    displayEvents(result.events);
+                } else {
+                    document.getElementById('eventsList').innerHTML = '<p class="text-red-500">Failed to load events</p>';
+                }
+
+            } catch (error) {
+                document.getElementById('eventsList').innerHTML = '<p class="text-red-500">Network error</p>';
+            }
+        }
+
+        function displayEvents(events) {
+            const eventsList = document.getElementById('eventsList');
+
+            if (events.length === 0) {
+                eventsList.innerHTML = '<p class="text-gray-500">No upcoming events</p>';
+                return;
+            }
+
+            eventsList.innerHTML = events.map(event => {
+                const startDate = new Date(event.start).toLocaleDateString();
+                const startTime = new Date(event.start).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                const endTime = new Date(event.end).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+                const bgColor = event.isBlocked ? 'bg-red-50 border-red-200' : 'bg-blue-50 border-blue-200';
+                const textColor = event.isBlocked ? 'text-red-800' : 'text-blue-800';
+                const title = event.isBlocked ? 'Blocked' : 'Appointment';
+
+                return `
+                    <div class="border rounded-md p-3 ${bgColor}">
+                        <div class="flex justify-between items-start">
+                            <div class="flex-1">
+                                <div class="font-medium ${textColor}">${title}</div>
+                                <div class="text-sm text-gray-600">
+                                    ${startDate} ${startTime} - ${endTime}
+                                </div>
+                                <div class="text-sm text-gray-500 mt-1">${event.title}</div>
+                            </div>
+                            ${event.isBlocked ? `
+                                <button onclick="unblockSlot('${event.id}')"
+                                        class="ml-2 bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700">
+                                    Unblock
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function unblockSlot(eventId) {
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'unblock_slot',
+                        eventId: eventId
+                    })
+                });
+
+                const result = await response.json();
+                showMessage(result.message, result.status);
+
+                if (result.status === 'success') {
+                    loadEvents();
+                }
+
+            } catch (error) {
+                showMessage('Network error. Please try again.', 'error');
+            }
+        }
+
+        function showMessage(text, type) {
+            const messageEl = document.getElementById('message');
+            messageEl.textContent = text;
+            messageEl.className = `mt-6 p-4 rounded-md ${type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`;
+            messageEl.classList.remove('hidden');
+
+            setTimeout(() => {
+                messageEl.classList.add('hidden');
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
