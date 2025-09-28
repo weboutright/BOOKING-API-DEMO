@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book an Appointment - HC Studios</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .form-container {
+            padding: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+            background: white;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .time-slots {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .time-slot {
+            padding: 12px 20px;
+            border: 2px solid #6366f1;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.2);
+            min-width: 100px;
+        }
+
+        .time-slot:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+            background: linear-gradient(135deg, #5855eb 0%, #7c3aed 100%);
+        }
+
+        .time-slot.selected {
+            background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+            border-color: #374151;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(31, 41, 55, 0.4);
+        }
+
+
+
+        .submit-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            padding: 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
+        }
+
+        .submit-btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #6b7280;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e5e7eb;
+            border-top: 4px solid #6366f1;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .alert {
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.success {
+            background: #f0f9f0;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .alert.error {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+
+        .required {
+            color: #ef4444;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 10px;
+            }
+            
+            .form-container {
+                padding: 20px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Book Your Appointment</h1>
+            <p>Select your preferred date and time</p>
+        </div>
+        
+        <div class="form-container">
+            <div class="alert" id="alertMessage"></div>
+            
+            <form id="bookingForm">
+                <div class="form-group">
+                    <label for="clientName">Full Name <span class="required">*</span></label>
+                    <input type="text" id="clientName" name="clientName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="clientEmail">Email Address <span class="required">*</span></label>
+                    <input type="email" id="clientEmail" name="clientEmail" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="clientPhone">Phone Number</label>
+                    <input type="tel" id="clientPhone" name="clientPhone">
+                </div>
+                
+                <div class="form-group">
+                    <label for="bookingDate">Select Date <span class="required">*</span></label>
+                    <input type="date" id="bookingDate" name="bookingDate" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="timeSlots">Available Time Slots <span class="required">*</span></label>
+                    <div class="loading" id="slotsLoading">
+                        <div class="spinner"></div>
+                        <p>Loading available times...</p>
+                    </div>
+                    <div class="time-slots" id="timeSlots"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="notes">Additional Notes</label>
+                    <textarea id="notes" name="notes" rows="4" placeholder="Any special requests or information..."></textarea>
+                </div>
+                
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    Book Appointment
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Configuration - Replace with your Google Apps Script web app URL
+        const SCRIPT_URL = 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE';
+        
+        let selectedTimeSlot = null;
+        
+        // Initialize the form
+        document.addEventListener('DOMContentLoaded', function() {
+            const dateInput = document.getElementById('bookingDate');
+            const today = new Date().toISOString().split('T')[0];
+            dateInput.min = today;
+            
+            dateInput.addEventListener('change', loadTimeSlots);
+        });
+        
+        // Load available time slots for selected date
+        async function loadTimeSlots() {
+            const dateInput = document.getElementById('bookingDate');
+            const selectedDate = dateInput.value;
+            
+            if (!selectedDate) return;
+            
+            const loadingDiv = document.getElementById('slotsLoading');
+            const slotsContainer = document.getElementById('timeSlots');
+            
+            loadingDiv.style.display = 'block';
+            slotsContainer.innerHTML = '';
+            selectedTimeSlot = null;
+            
+            try {
+                console.log('Fetching availability for:', selectedDate);
+                const response = await fetch(`${SCRIPT_URL}?action=getAvailability&date=${selectedDate}`);
+                console.log('Response status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('Response data:', data);
+                
+                loadingDiv.style.display = 'none';
+                
+                if (data.success) {
+                    displayTimeSlots(data.availableSlots, data.unavailableSlots);
+                } else {
+                    showAlert('error', data.error || 'Failed to load time slots');
+                }
+            } catch (error) {
+                loadingDiv.style.display = 'none';
+                showAlert('error', `Connection failed: ${error.message}. Please check if the Google Apps Script is deployed correctly.`);
+                console.error('Error loading time slots:', error);
+            }
+        }
+        
+        // Display time slots - only show available slots
+        function displayTimeSlots(availableSlots, unavailableSlots) {
+            const slotsContainer = document.getElementById('timeSlots');
+            
+            console.log('Available slots:', availableSlots);
+            console.log('Unavailable slots:', unavailableSlots);
+            
+            if (availableSlots.length === 0) {
+                let debugInfo = `<div style="text-align: center; color: #6b7280;">
+                    <p style="margin-bottom: 15px;">No available time slots for this date.</p>
+                    <div style="background: #f3f4f6; padding: 15px; border-radius: 8px; font-size: 14px;">
+                        <p><strong>Debug Info:</strong></p>
+                        <p>Available slots: ${availableSlots.length}</p>
+                        <p>Unavailable slots: ${unavailableSlots.length}</p>
+                        <p>This usually means:</p>
+                        <ul style="text-align: left; margin-top: 10px;">
+                            <li>Your calendar has events for all time slots</li>
+                            <li>Or it's a past date</li>
+                            <li>Or there's a calendar connection issue</li>
+                        </ul>
+                        <p style="margin-top: 10px;"><strong>Try:</strong> Select tomorrow's date or check your Google Calendar</p>
+                    </div>
+                </div>`;
+                slotsContainer.innerHTML = debugInfo;
+                return;
+            }
+            
+            // Only display available slots, sorted by time
+            availableSlots.sort((a, b) => new Date(a.value) - new Date(b.value));
+            
+            availableSlots.forEach(slot => {
+                const slotElement = document.createElement('div');
+                slotElement.className = 'time-slot';
+                slotElement.textContent = slot.time;
+                slotElement.dataset.value = slot.value;
+                slotElement.addEventListener('click', () => selectTimeSlot(slotElement));
+                slotsContainer.appendChild(slotElement);
+            });
+        }
+        
+        // Select time slot
+        function selectTimeSlot(element) {
+            // Remove previous selection
+            document.querySelectorAll('.time-slot.selected').forEach(slot => {
+                slot.classList.remove('selected');
+            });
+            
+            // Add selection to clicked element
+            element.classList.add('selected');
+            selectedTimeSlot = element.dataset.value;
+        }
+        
+        // Handle form submission
+        document.getElementById('bookingForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (!selectedTimeSlot) {
+                showAlert('error', 'Please select a time slot');
+                return;
+            }
+            
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Booking...';
+            
+            const formData = {
+                action: 'createBooking',
+                datetime: selectedTimeSlot,
+                clientName: document.getElementById('clientName').value,
+                clientEmail: document.getElementById('clientEmail').value,
+                clientPhone: document.getElementById('clientPhone').value,
+                notes: document.getElementById('notes').value
+            };
+            
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showAlert('success', 'Booking confirmed! You will receive an email confirmation shortly.');
+                    document.getElementById('bookingForm').reset();
+                    document.getElementById('timeSlots').innerHTML = '';
+                    selectedTimeSlot = null;
+                } else {
+                    showAlert('error', result.error || 'Booking failed. Please try again.');
+                }
+            } catch (error) {
+                showAlert('error', 'Failed to connect to booking system. Please try again.');
+                console.error('Booking error:', error);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Book Appointment';
+            }
+        });
+        
+        // Show alert messages
+        function showAlert(type, message) {
+            const alertDiv = document.getElementById('alertMessage');
+            alertDiv.className = `alert ${type}`;
+            alertDiv.textContent = message;
+            alertDiv.style.display = 'block';
+            
+            // Auto-hide success messages
+            if (type === 'success') {
+                setTimeout(() => {
+                    alertDiv.style.display = 'none';
+                }, 5000);
+            }
+        }
+    </script>
+</body>
+</html>

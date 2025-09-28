@@ -3,249 +3,672 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100 min-h-screen">
-    <div class="container mx-auto px-4 py-8">
-        <div id="loginPrompt" class="max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">
-            <h1 class="text-2xl font-bold text-center mb-4">Admin Access Required</h1>
-            <p class="text-gray-600 mb-4">You must be logged into Google to access the admin dashboard.</p>
-            <button onclick="checkAuth()" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700">
-                Check Access
-            </button>
-            <div id="authMessage" class="mt-4 p-3 rounded-md hidden"></div>
-        </div>
+    <title>Admin Panel - Booking System</title>
+    <script src="https://accounts.google.com/gsi/client" defer></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-        <div id="adminPanel" class="hidden">
-            <div class="flex justify-between items-center mb-6">
-                <h1 class="text-2xl font-bold">Admin Dashboard</h1>
-                <div class="text-sm text-gray-600">
-                    Logged in as: <span id="userEmail"></span>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8fafc;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1f2937, #374151);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #6366f1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .login-container h2 {
+            margin-bottom: 30px;
+            color: #1f2937;
+        }
+
+        .google-signin-btn {
+            background: #4285f4;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 0 auto;
+            transition: background 0.3s ease;
+        }
+
+        .google-signin-btn:hover {
+            background: #3367d6;
+        }
+
+        .admin-panel {
+            display: none;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .card h3 {
+            color: #1f2937;
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #6366f1;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5855eb;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+
+        .bookings-list {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin-top: 30px;
+        }
+
+        .booking-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .booking-item:hover {
+            border-color: #6366f1;
+            box-shadow: 0 2px 10px rgba(99, 102, 241, 0.1);
+        }
+
+        .booking-info h4 {
+            color: #1f2937;
+            margin-bottom: 5px;
+        }
+
+        .booking-info p {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .booking-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .alert {
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.success {
+            background: #f0f9f0;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .alert.error {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6b7280;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e5e7eb;
+            border-top: 4px solid #6366f1;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .booking-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .booking-actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Section -->
+    <div id="loginSection" class="login-container">
+        <h2>Admin Login Required</h2>
+        <p style="margin-bottom: 30px; color: #6b7280;">Please sign in with your authorized Google account to access the admin panel.</p>
+        <div id="googleSignInButton"></div>
+        
+        <!-- Temporary bypass button for testing -->
+        <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+            <p style="color: #6b7280; margin-bottom: 10px; font-size: 14px;">For testing purposes:</p>
+            <button onclick="bypassLogin()" class="btn btn-secondary">Bypass Login (Testing)</button>
+        </div>
+    </div>
+
+    <!-- Admin Panel Section -->
+    <div id="adminPanel" class="admin-panel">
+        <div class="header">
+            <div class="header-content">
+                <h1>📅 Booking System Admin</h1>
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar"></div>
+                    <div>
+                        <div id="userName"></div>
+                        <button class="btn btn-secondary" onclick="signOut()">Sign Out</button>
+                    </div>
                 </div>
             </div>
+        </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Block Time Slot -->
-                <div class="bg-white p-6 rounded-lg shadow-md">
-                    <h2 class="text-xl font-semibold mb-4">Block Time Slot</h2>
-                    <form id="blockForm" class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Date</label>
-                            <input type="date" id="blockDate" required
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
+        <div class="container">
+            <div class="alert" id="alertMessage"></div>
+
+            <div class="dashboard-grid">
+                <!-- Create Time Block -->
+                <div class="card">
+                    <h3>🚫 Block Time Slot</h3>
+                    <form id="blockTimeForm">
+                        <div class="form-group">
+                            <label for="blockDate">Date</label>
+                            <input type="date" id="blockDate" required>
                         </div>
-                        <div class="grid grid-cols-2 gap-2">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Start Time</label>
-                                <input type="time" id="blockStartTime" required
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">End Time</label>
-                                <input type="time" id="blockEndTime" required
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
-                            </div>
+                        
+                        <div class="form-group">
+                            <label for="blockTime">Time</label>
+                            <input type="time" id="blockTime" required>
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Reason</label>
-                            <input type="text" id="blockReason" placeholder="e.g., Vacation, Meeting"
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
+                        
+                        <div class="form-group">
+                            <label for="blockDuration">Duration (minutes)</label>
+                            <select id="blockDuration">
+                                <option value="60">1 hour</option>
+                                <option value="120">2 hours</option>
+                                <option value="180">3 hours</option>
+                                <option value="240">4 hours</option>
+                                <option value="480">8 hours (full day)</option>
+                            </select>
                         </div>
-                        <button type="submit" class="w-full bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700">
-                            Block Time Slot
-                        </button>
+                        
+                        <div class="form-group">
+                            <label for="blockTitle">Title</label>
+                            <input type="text" id="blockTitle" placeholder="Admin Block" value="Admin Block">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="blockDescription">Description</label>
+                            <textarea id="blockDescription" rows="3" placeholder="Reason for blocking this time..."></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Block Time Slot</button>
                     </form>
                 </div>
 
-                <!-- Current Events -->
-                <div class="bg-white p-6 rounded-lg shadow-md">
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-xl font-semibold">Upcoming Events</h2>
-                        <button onclick="loadEvents()" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 text-sm">
-                            Refresh
+                <!-- Quick Actions -->
+                <div class="card">
+                    <h3>⚡ Quick Actions</h3>
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <button class="btn btn-primary" onclick="refreshBookings()">
+                            🔄 Refresh Bookings
+                        </button>
+                        <button class="btn btn-secondary" onclick="exportBookings()">
+                            📊 Export Bookings
+                        </button>
+                        <button class="btn btn-secondary" onclick="viewCalendar()">
+                            📅 View Google Calendar
                         </button>
                     </div>
-                    <div id="eventsList" class="space-y-2 max-h-96 overflow-y-auto">
-                        <p class="text-gray-500">Loading events...</p>
+                    
+                    <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+                        <h4 style="margin-bottom: 15px; color: #374151;">System Status</h4>
+                        <div id="systemStatus">
+                            <div class="loading">
+                                <div class="spinner"></div>
+                                <p>Checking system status...</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div id="message" class="mt-6 p-4 rounded-md hidden"></div>
+            <!-- Bookings List -->
+            <div class="bookings-list">
+                <h3>📋 Current & Upcoming Bookings</h3>
+                <div id="bookingsContainer">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p>Loading bookings...</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        // Your deployed Google Apps Script URL
-        const API_URL = 'https://script.google.com/macros/s/AKfycbwmDTllriG7C1tdnii0vc5uAetB68BqYQJ5gFLaQRwqxGIIQlPZjiC-ObFJMKNf89oBMw/exec';
+        // Configuration - Replace with your actual values
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxVG5OORxSAysHqe8fcMfz-XWJOewLWWkO4wsG_ugrUHqFq4mmsGD--0G6BMaZ20ZE--A/exec';
+        const CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID';
+        const ADMIN_EMAIL = 'weboutright@gmail.com';
+        
+        // Temporary bypass for testing
+        const BYPASS_AUTH = true;
+        
+        let currentUser = null;
+        let googleAuth = null;
 
-        // Set minimum date to today
-        document.getElementById('blockDate').min = new Date().toISOString().split('T')[0];
+        // Initialize Google Sign-In
+        function initializeGoogleSignIn() {
+            google.accounts.id.initialize({
+                client_id: CLIENT_ID,
+                callback: handleCredentialResponse,
+                auto_select: false,
+                cancel_on_tap_outside: false
+            });
 
-        // Check authentication on page load
-        checkAuth();
-
-        async function checkAuth() {
-            try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'admin_check' })
-                });
-
-                const result = await response.json();
-
-                if (result.status === 'success') {
-                    document.getElementById('loginPrompt').classList.add('hidden');
-                    document.getElementById('adminPanel').classList.remove('hidden');
-                    document.getElementById('userEmail').textContent = result.email;
-                    loadEvents();
-                } else {
-                    showAuthMessage('Access denied. Please make sure you are logged into the correct Google account.', 'error');
+            // Render the sign-in button
+            google.accounts.id.renderButton(
+                document.getElementById('googleSignInButton'),
+                {
+                    theme: 'outline',
+                    size: 'large',
+                    type: 'standard',
+                    text: 'signin_with',
+                    shape: 'rectangular',
+                    logo_alignment: 'left'
                 }
+            );
+        }
 
-            } catch (error) {
-                showAuthMessage('Network error. Please try again.', 'error');
+        // Google Sign-In callback
+        function handleCredentialResponse(response) {
+            const responsePayload = decodeJwtResponse(response.credential);
+            
+            if (responsePayload.email === ADMIN_EMAIL) {
+                currentUser = responsePayload;
+                showAdminPanel();
+            } else {
+                showAlert('error', 'Access denied. You are not authorized to access this admin panel.');
             }
         }
 
-        function showAuthMessage(text, type) {
-            const messageEl = document.getElementById('authMessage');
-            messageEl.textContent = text;
-            messageEl.className = `mt-4 p-3 rounded-md ${type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`;
-            messageEl.classList.remove('hidden');
+        // Decode JWT token
+        function decodeJwtResponse(token) {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            return JSON.parse(jsonPayload);
         }
 
-        // Handle block form submission
-        document.getElementById('blockForm').addEventListener('submit', async (e) => {
+        // Show admin panel
+        function showAdminPanel() {
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'block';
+            
+            // Update user info
+            document.getElementById('userName').textContent = currentUser.name;
+            document.getElementById('userAvatar').textContent = currentUser.name.charAt(0);
+            
+            // Initialize admin panel
+            initializeAdminPanel();
+        }
+
+        // Initialize admin panel
+        function initializeAdminPanel() {
+            // Set minimum date to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('blockDate').min = today;
+            
+            // Load bookings
+            loadBookings();
+            
+            // Set up form handlers
+            document.getElementById('blockTimeForm').addEventListener('submit', handleBlockTime);
+        }
+
+        // Handle time blocking form
+        async function handleBlockTime(e) {
             e.preventDefault();
-
-            const formData = {
-                action: 'block_slot',
-                date: document.getElementById('blockDate').value,
-                startTime: document.getElementById('blockStartTime').value,
-                endTime: document.getElementById('blockEndTime').value,
-                reason: document.getElementById('blockReason').value
+            
+            const date = document.getElementById('blockDate').value;
+            const time = document.getElementById('blockTime').value;
+            const duration = parseInt(document.getElementById('blockDuration').value);
+            const title = document.getElementById('blockTitle').value;
+            const description = document.getElementById('blockDescription').value;
+            
+            const datetime = new Date(`${date}T${time}`).toISOString();
+            
+            const blockData = {
+                action: 'createAdminBlock',
+                datetime: datetime,
+                duration: duration,
+                title: title,
+                description: description
             };
-
+            
             try {
-                const response = await fetch(API_URL, {
+                const response = await fetch(SCRIPT_URL, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(formData)
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(blockData)
                 });
-
+                
                 const result = await response.json();
-                showMessage(result.message, result.status);
-
-                if (result.status === 'success') {
-                    document.getElementById('blockForm').reset();
-                    loadEvents();
-                }
-
-            } catch (error) {
-                showMessage('Network error. Please try again.', 'error');
-            }
-        });
-
-        async function loadEvents() {
-            try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        action: 'get_events',
-                        startDate: new Date().toISOString().split('T')[0],
-                        endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-                    })
-                });
-
-                const result = await response.json();
-
-                if (result.status === 'success') {
-                    displayEvents(result.events);
+                
+                if (result.success) {
+                    showAlert('success', 'Time slot blocked successfully!');
+                    document.getElementById('blockTimeForm').reset();
+                    loadBookings(); // Refresh bookings list
                 } else {
-                    document.getElementById('eventsList').innerHTML = '<p class="text-red-500">Failed to load events</p>';
+                    showAlert('error', result.error || 'Failed to block time slot');
                 }
-
             } catch (error) {
-                document.getElementById('eventsList').innerHTML = '<p class="text-red-500">Network error</p>';
+                showAlert('error', 'Failed to connect to server');
+                console.error('Block time error:', error);
             }
         }
 
-        function displayEvents(events) {
-            const eventsList = document.getElementById('eventsList');
+        // Load all bookings
+        async function loadBookings() {
+            const container = document.getElementById('bookingsContainer');
+            container.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading bookings...</p></div>';
+            
+            try {
+                const response = await fetch(`${SCRIPT_URL}?action=getAllBookings`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayBookings(data.bookings);
+                } else {
+                    container.innerHTML = `<p style="text-align: center; color: #ef4444;">Error: ${data.error}</p>`;
+                }
+            } catch (error) {
+                container.innerHTML = '<p style="text-align: center; color: #ef4444;">Failed to load bookings</p>';
+                console.error('Load bookings error:', error);
+            }
+        }
 
-            if (events.length === 0) {
-                eventsList.innerHTML = '<p class="text-gray-500">No upcoming events</p>';
+        // Display bookings
+        function displayBookings(bookings) {
+            const container = document.getElementById('bookingsContainer');
+            
+            if (bookings.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #6b7280;">No bookings found</p>';
                 return;
             }
-
-            eventsList.innerHTML = events.map(event => {
-                const startDate = new Date(event.start).toLocaleDateString();
-                const startTime = new Date(event.start).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                const endTime = new Date(event.end).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-
-                const bgColor = event.isBlocked ? 'bg-red-50 border-red-200' : 'bg-blue-50 border-blue-200';
-                const textColor = event.isBlocked ? 'text-red-800' : 'text-blue-800';
-                const title = event.isBlocked ? 'Blocked' : 'Appointment';
-
+            
+            const bookingsHtml = bookings.map(booking => {
+                const startDate = new Date(booking.start);
+                const endDate = new Date(booking.end);
+                
                 return `
-                    <div class="border rounded-md p-3 ${bgColor}">
-                        <div class="flex justify-between items-start">
-                            <div class="flex-1">
-                                <div class="font-medium ${textColor}">${title}</div>
-                                <div class="text-sm text-gray-600">
-                                    ${startDate} ${startTime} - ${endTime}
-                                </div>
-                                <div class="text-sm text-gray-500 mt-1">${event.title}</div>
-                            </div>
-                            ${event.isBlocked ? `
-                                <button onclick="unblockSlot('${event.id}')"
-                                        class="ml-2 bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700">
-                                    Unblock
-                                </button>
-                            ` : ''}
+                    <div class="booking-item">
+                        <div class="booking-info">
+                            <h4>${booking.title}</h4>
+                            <p><strong>Date:</strong> ${startDate.toLocaleDateString()}</p>
+                            <p><strong>Time:</strong> ${startDate.toLocaleTimeString()} - ${endDate.toLocaleTimeString()}</p>
+                            ${booking.description ? `<p><strong>Details:</strong> ${booking.description}</p>` : ''}
+                        </div>
+                        <div class="booking-actions">
+                            <button class="btn btn-danger" onclick="deleteBooking('${booking.id}')">
+                                🗑️ Delete
+                            </button>
                         </div>
                     </div>
                 `;
             }).join('');
+            
+            container.innerHTML = bookingsHtml;
         }
 
-        async function unblockSlot(eventId) {
+        // Delete booking
+        async function deleteBooking(eventId) {
+            if (!confirm('Are you sure you want to delete this booking?')) {
+                return;
+            }
+            
             try {
-                const response = await fetch(API_URL, {
+                const response = await fetch(SCRIPT_URL, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
                     body: JSON.stringify({
-                        action: 'unblock_slot',
+                        action: 'deleteBooking',
                         eventId: eventId
                     })
                 });
-
+                
                 const result = await response.json();
-                showMessage(result.message, result.status);
-
-                if (result.status === 'success') {
-                    loadEvents();
+                
+                if (result.success) {
+                    showAlert('success', 'Booking deleted successfully');
+                    loadBookings();
+                } else {
+                    showAlert('error', result.error || 'Failed to delete booking');
                 }
-
             } catch (error) {
-                showMessage('Network error. Please try again.', 'error');
+                showAlert('error', 'Failed to connect to server');
+                console.error('Delete booking error:', error);
             }
         }
 
-        function showMessage(text, type) {
-            const messageEl = document.getElementById('message');
-            messageEl.textContent = text;
-            messageEl.className = `mt-6 p-4 rounded-md ${type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`;
-            messageEl.classList.remove('hidden');
+        // Refresh bookings
+        function refreshBookings() {
+            loadBookings();
+            showAlert('success', 'Bookings refreshed');
+        }
 
+        // Export bookings (basic implementation)
+        function exportBookings() {
+            showAlert('success', 'Export feature coming soon!');
+        }
+
+        // View calendar
+        function viewCalendar() {
+            window.open('https://calendar.google.com', '_blank');
+        }
+
+        // Sign out
+        function signOut() {
+            currentUser = null;
+            document.getElementById('loginSection').style.display = 'block';
+            document.getElementById('adminPanel').style.display = 'none';
+            
+            // Reset Google Sign-In
+            if (typeof google !== 'undefined' && google.accounts) {
+                google.accounts.id.disableAutoSelect();
+                google.accounts.id.cancel();
+            }
+        }
+
+        // Show alert messages
+        function showAlert(type, message) {
+            const alertDiv = document.getElementById('alertMessage');
+            alertDiv.className = `alert ${type}`;
+            alertDiv.textContent = message;
+            alertDiv.style.display = 'block';
+            
             setTimeout(() => {
-                messageEl.classList.add('hidden');
+                alertDiv.style.display = 'none';
             }, 5000);
         }
+
+        // Bypass login for testing
+        function bypassLogin() {
+            if (BYPASS_AUTH) {
+                currentUser = {
+                    name: 'Admin User',
+                    email: ADMIN_EMAIL
+                };
+                showAdminPanel();
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Google Sign-In when the page loads
+            if (typeof google !== 'undefined' && google.accounts && !BYPASS_AUTH) {
+                initializeGoogleSignIn();
+            } else if (!BYPASS_AUTH) {
+                // Wait for Google SDK to load
+                window.addEventListener('load', function() {
+                    setTimeout(initializeGoogleSignIn, 100);
+                });
+            }
+        });
     </script>
 </body>
 </html>

@@ -3,135 +3,336 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Book an Appointment</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Booking Confirmation - HC Studios</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .confirmation-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+            overflow: hidden;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .success-header {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 40px 30px;
+        }
+
+        .success-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .success-header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .success-header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .confirmation-details {
+            padding: 40px 30px;
+        }
+
+        .booking-info {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 25px 0;
+            text-align: left;
+        }
+
+        .booking-info h3 {
+            color: #1f2937;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .info-value {
+            color: #6b7280;
+        }
+
+        .next-steps {
+            background: #eff6ff;
+            border: 1px solid #dbeafe;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+
+        .next-steps h3 {
+            color: #1e40af;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .next-steps ul {
+            text-align: left;
+            color: #374151;
+            line-height: 1.6;
+        }
+
+        .next-steps li {
+            margin-bottom: 8px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #6366f1;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5855eb;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+            border: 1px solid #d1d5db;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        .contact-info {
+            background: #fef7cd;
+            border: 1px solid #fde047;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+
+        .contact-info h4 {
+            color: #a16207;
+            margin-bottom: 10px;
+        }
+
+        .contact-info p {
+            color: #92400e;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            .confirmation-container {
+                margin: 10px;
+            }
+            
+            .success-header {
+                padding: 30px 20px;
+            }
+            
+            .confirmation-details {
+                padding: 30px 20px;
+            }
+            
+            .success-header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
-<body class="bg-gray-100 min-h-screen">
-    <div class="container mx-auto px-4 py-8">
-        <div class="max-w-lg mx-auto bg-white p-6 rounded-lg shadow-md">
-            <h1 class="text-2xl font-bold text-center mb-4">Book an Appointment</h1>
-            <form id="bookingForm" class="space-y-4">
-                <div>
-                    <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-                    <input type="text" id="name" required
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+<body>
+    <div class="confirmation-container">
+        <div class="success-header">
+            <span class="success-icon">✅</span>
+            <h1>Booking Confirmed!</h1>
+            <p>Your appointment has been successfully scheduled</p>
+        </div>
+        
+        <div class="confirmation-details">
+            <div class="booking-info">
+                <h3>📅 Appointment Details</h3>
+                <div class="info-row">
+                    <span class="info-label">Date:</span>
+                    <span class="info-value" id="bookingDate">-</span>
                 </div>
-                <div>
-                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-                    <input type="email" id="email" required
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <div class="info-row">
+                    <span class="info-label">Time:</span>
+                    <span class="info-value" id="bookingTime">-</span>
                 </div>
-                <div>
-                    <label for="date" class="block text-sm font-medium text-gray-700 mb-1">Date</label>
-                    <input type="date" id="date" required
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <div class="info-row">
+                    <span class="info-label">Client:</span>
+                    <span class="info-value" id="clientName">-</span>
                 </div>
-                <div>
-                    <label for="time" class="block text-sm font-medium text-gray-700 mb-1">Available Time Slots</label>
-                    <select id="time" required
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="">-- Select a Date First --</option>
-                    </select>
+                <div class="info-row">
+                    <span class="info-label">Email:</span>
+                    <span class="info-value" id="clientEmail">-</span>
                 </div>
-                <div>
-                    <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">Notes (Optional)</label>
-                    <textarea id="notes" rows="3"
-                              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                <div class="info-row" id="phoneRow" style="display: none;">
+                    <span class="info-label">Phone:</span>
+                    <span class="info-value" id="clientPhone">-</span>
                 </div>
-                <button type="submit" id="submitButton" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700">
-                    Book Appointment
-                </button>
-            </form>
-            <div id="message" class="mt-4 p-3 rounded-md hidden"></div>
+            </div>
+            
+            <div class="next-steps">
+                <h3>📋 What's Next?</h3>
+                <ul>
+                    <li>You will receive a calendar invitation via email shortly</li>
+                    <li>Please check your email (including spam folder) for confirmation</li>
+                    <li>If you need to reschedule, please contact us at least 24 hours in advance</li>
+                    <li>Bring any relevant documents or materials to your appointment</li>
+                </ul>
+            </div>
+            
+            <div class="contact-info">
+                <h4>📞 Need to Make Changes?</h4>
+                <p>If you need to reschedule or cancel your appointment, please contact us as soon as possible. We appreciate at least 24 hours notice for any changes.</p>
+            </div>
+            
+            <div class="action-buttons">
+                <a href="index.html" class="btn btn-primary">Book Another Appointment</a>
+                <a href="#" onclick="window.print()" class="btn btn-secondary">Print Confirmation</a>
+                <a href="mailto:weboutright@gmail.com?subject=Appointment Inquiry" class="btn btn-secondary">Contact Us</a>
+            </div>
         </div>
     </div>
 
     <script>
-        const API_URL = 'https://script.google.com/macros/s/AKfycbwmDTllriG7C1tdnii0vc5uAetB68BqYQJ5gFLaQRwqxGIIQlPZjiC-ObFJMKNf89oBMw/exec';
-        const dateInput = document.getElementById('date');
-        const timeSelect = document.getElementById('time');
-
-        dateInput.min = new Date().toISOString().split('T')[0];
-
-        dateInput.addEventListener('change', async () => {
-            const selectedDate = dateInput.value;
-            if (!selectedDate) return;
-
-            timeSelect.innerHTML = '<option value="">-- Loading Slots --</option>';
-            timeSelect.disabled = true;
-
-            try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'get_available_slots', date: selectedDate })
-                });
-                const result = await response.json();
-
-                if (result.status === 'success') {
-                    timeSelect.innerHTML = '';
-                    if (result.slots.length > 0) {
-                        result.slots.forEach(slot => {
-                            const option = document.createElement('option');
-                            option.value = slot;
-                            option.textContent = slot;
-                            timeSelect.appendChild(option);
-                        });
-                    } else {
-                        timeSelect.innerHTML = '<option value="">-- No Slots Available --</option>';
-                    }
-                } else {
-                    timeSelect.innerHTML = '<option value="">-- Error Loading Slots --</option>';
-                }
-            } catch (error) {
-                timeSelect.innerHTML = '<option value="">-- Network Error --</option>';
-            } finally {
-                timeSelect.disabled = false;
-            }
-        });
-
-        document.getElementById('bookingForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const submitButton = document.getElementById('submitButton');
-            submitButton.disabled = true;
-            submitButton.textContent = 'Booking...';
-
-            const formData = {
-                action: 'book',
-                name: document.getElementById('name').value,
-                email: document.getElementById('email').value,
-                date: dateInput.value,
-                time: timeSelect.value,
-                notes: document.getElementById('notes').value
+        // Get booking details from URL parameters or localStorage
+        function loadBookingDetails() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const storageKey = 'lastBookingDetails';
+            
+            // Try to get details from URL parameters first
+            let bookingDetails = {
+                date: urlParams.get('date'),
+                time: urlParams.get('time'),
+                name: urlParams.get('name'),
+                email: urlParams.get('email'),
+                phone: urlParams.get('phone')
             };
-
-            try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(formData)
-                });
-                const result = await response.json();
-                showMessage(result.message, result.status);
-                if (result.status === 'success') {
-                    document.getElementById('bookingForm').reset();
-                    timeSelect.innerHTML = '<option value="">-- Select a Date First --</option>';
+            
+            // If not in URL, try localStorage
+            if (!bookingDetails.date && localStorage.getItem(storageKey)) {
+                try {
+                    const stored = JSON.parse(localStorage.getItem(storageKey));
+                    bookingDetails = stored;
+                } catch (e) {
+                    console.error('Error parsing stored booking details:', e);
                 }
-            } catch (error) {
-                showMessage('Network error. Please try again.', 'error');
-            } finally {
-                submitButton.disabled = false;
-                submitButton.textContent = 'Book Appointment';
             }
-        });
-
-        function showMessage(text, type) {
-            const messageEl = document.getElementById('message');
-            messageEl.textContent = text;
-            messageEl.className = `mt-4 p-3 rounded-md ${type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`;
-            messageEl.classList.remove('hidden');
-            setTimeout(() => messageEl.classList.add('hidden'), 5000);
+            
+            // Display the details
+            if (bookingDetails.date) {
+                const date = new Date(bookingDetails.date);
+                document.getElementById('bookingDate').textContent = 
+                    date.toLocaleDateString('en-US', { 
+                        weekday: 'long', 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
+                    });
+                document.getElementById('bookingTime').textContent = 
+                    date.toLocaleTimeString('en-US', { 
+                        hour: 'numeric', 
+                        minute: '2-digit', 
+                        hour12: true 
+                    });
+            }
+            
+            if (bookingDetails.name) {
+                document.getElementById('clientName').textContent = bookingDetails.name;
+            }
+            
+            if (bookingDetails.email) {
+                document.getElementById('clientEmail').textContent = bookingDetails.email;
+            }
+            
+            if (bookingDetails.phone) {
+                document.getElementById('clientPhone').textContent = bookingDetails.phone;
+                document.getElementById('phoneRow').style.display = 'flex';
+            }
+            
+            // Clear the stored details after displaying
+            localStorage.removeItem(storageKey);
         }
+        
+        // Load booking details when page loads
+        document.addEventListener('DOMContentLoaded', loadBookingDetails);
+        
+        // Add some animations
+        document.addEventListener('DOMContentLoaded', function() {
+            const container = document.querySelector('.confirmation-container');
+            container.style.opacity = '0';
+            container.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                container.style.transition = 'all 0.6s ease';
+                container.style.opacity = '1';
+                container.style.transform = 'translateY(0)';
+            }, 100);
+        });
     </script>
 </body>
 </html>
