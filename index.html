@@ -214,17 +214,17 @@
             <form id="bookingForm">
                 <div class="form-group">
                     <label for="clientName">Full Name <span class="required">*</span></label>
-                    <input type="text" id="clientName" name="clientName" required>
+                    <input type="text" id="clientName" name="clientName" required maxlength="100" minlength="2">
                 </div>
                 
                 <div class="form-group">
                     <label for="clientEmail">Email Address <span class="required">*</span></label>
-                    <input type="email" id="clientEmail" name="clientEmail" required>
+                    <input type="email" id="clientEmail" name="clientEmail" required maxlength="254">
                 </div>
                 
                 <div class="form-group">
                     <label for="clientPhone">Phone Number</label>
-                    <input type="tel" id="clientPhone" name="clientPhone">
+                    <input type="tel" id="clientPhone" name="clientPhone" maxlength="20">
                 </div>
                 
                 <div class="form-group">
@@ -243,7 +243,7 @@
                 
                 <div class="form-group">
                     <label for="notes">Additional Notes</label>
-                    <textarea id="notes" name="notes" rows="4" placeholder="Any special requests or information..."></textarea>
+                    <textarea id="notes" name="notes" rows="4" maxlength="500" placeholder="Any special requests or information..."></textarea>
                 </div>
                 
                 <button type="submit" class="submit-btn" id="submitBtn">
@@ -255,7 +255,16 @@
 
     <script>
         // Configuration
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxVG5OORxSAysHqe8fcMfz-XWJOewLWWkO4wsG_ugrUHqFq4mmsGD--0G6BMaZ20ZE--A/exec';        let selectedTimeSlot = null;
+        const CONFIG = {
+            SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxVG5OORxSAysHqe8fcMfz-XWJOewLWWkO4wsG_ugrUHqFq4mmsGD--0G6BMaZ20ZE--A/exec',
+            MAX_NAME_LENGTH: 100,
+            MAX_NOTES_LENGTH: 500,
+            CONNECTION_TIMEOUT: 10000 // 10 seconds
+        };
+        
+        // State management
+        let selectedTimeSlot = null;
+        let isSubmitting = false;
         
         // Initialize the form
         document.addEventListener('DOMContentLoaded', function() {
@@ -269,11 +278,21 @@
             testConnection();
         });
         
-        // Test connection to the backend
+        /**
+         * Test connection to the backend with timeout
+         */
         async function testConnection() {
             try {
                 console.log('Testing connection to booking system...');
-                const response = await fetch(`${SCRIPT_URL}?action=ping`);
+                
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), CONFIG.CONNECTION_TIMEOUT);
+                
+                const response = await fetch(`${CONFIG.SCRIPT_URL}?action=ping`, {
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
                 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -284,15 +303,19 @@
                 
                 if (data.success) {
                     console.log('✅ Successfully connected to booking system');
-                    // Show connection status to user
                     showConnectionStatus('Connected to booking system', 'success');
                 } else {
                     console.error('❌ Connection test failed:', data.error);
                     showConnectionStatus('Connection failed: ' + data.error, 'error');
                 }
             } catch (error) {
-                console.error('❌ Failed to connect to booking system:', error);
-                showConnectionStatus('Failed to connect to booking system: ' + error.message, 'error');
+                if (error.name === 'AbortError') {
+                    console.error('❌ Connection timeout');
+                    showConnectionStatus('Connection timeout - please check your internet', 'error');
+                } else {
+                    console.error('❌ Failed to connect to booking system:', error);
+                    showConnectionStatus('Failed to connect to booking system: ' + error.message, 'error');
+                }
             }
         }
         
@@ -337,7 +360,15 @@
             
             try {
                 console.log('Fetching availability for:', selectedDate);
-                const response = await fetch(`${SCRIPT_URL}?action=getAvailability&date=${selectedDate}`);
+                
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), CONFIG.CONNECTION_TIMEOUT);
+                
+                const response = await fetch(`${CONFIG.SCRIPT_URL}?action=getAvailability&date=${encodeURIComponent(selectedDate)}`, {
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
                 console.log('Response status:', response.status);
                 
                 if (!response.ok) {
@@ -413,15 +444,58 @@
             selectedTimeSlot = element.dataset.value;
         }
         
+        /**
+         * Validate form inputs
+         */
+        function validateForm() {
+            const clientName = document.getElementById('clientName').value.trim();
+            const clientEmail = document.getElementById('clientEmail').value.trim();
+            const notes = document.getElementById('notes').value.trim();
+            
+            if (!clientName || clientName.length < 2) {
+                showAlert('error', 'Please enter a valid name (at least 2 characters)');
+                return false;
+            }
+            
+            if (clientName.length > CONFIG.MAX_NAME_LENGTH) {
+                showAlert('error', `Name is too long (max ${CONFIG.MAX_NAME_LENGTH} characters)`);
+                return false;
+            }
+            
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!clientEmail || !emailRegex.test(clientEmail)) {
+                showAlert('error', 'Please enter a valid email address');
+                return false;
+            }
+            
+            if (notes.length > CONFIG.MAX_NOTES_LENGTH) {
+                showAlert('error', `Notes are too long (max ${CONFIG.MAX_NOTES_LENGTH} characters)`);
+                return false;
+            }
+            
+            if (!selectedTimeSlot) {
+                showAlert('error', 'Please select a time slot');
+                return false;
+            }
+            
+            return true;
+        }
+        
         // Handle form submission
         document.getElementById('bookingForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            if (!selectedTimeSlot) {
-                showAlert('error', 'Please select a time slot');
+            // Prevent double submission
+            if (isSubmitting) {
                 return;
             }
             
+            // Validate form
+            if (!validateForm()) {
+                return;
+            }
+            
+            isSubmitting = true;
             const submitBtn = document.getElementById('submitBtn');
             submitBtn.disabled = true;
             submitBtn.textContent = 'Booking...';
@@ -429,20 +503,26 @@
             const formData = {
                 action: 'createBooking',
                 datetime: selectedTimeSlot,
-                clientName: document.getElementById('clientName').value,
-                clientEmail: document.getElementById('clientEmail').value,
-                clientPhone: document.getElementById('clientPhone').value,
-                notes: document.getElementById('notes').value
+                clientName: document.getElementById('clientName').value.trim(),
+                clientEmail: document.getElementById('clientEmail').value.trim(),
+                clientPhone: document.getElementById('clientPhone').value.trim(),
+                notes: document.getElementById('notes').value.trim()
             };
             
             try {
-                const response = await fetch(SCRIPT_URL, {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), CONFIG.CONNECTION_TIMEOUT);
+                
+                const response = await fetch(CONFIG.SCRIPT_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify(formData)
+                    body: JSON.stringify(formData),
+                    signal: controller.signal
                 });
+                
+                clearTimeout(timeoutId);
                 
                 const result = await response.json();
                 
@@ -455,9 +535,14 @@
                     showAlert('error', result.error || 'Booking failed. Please try again.');
                 }
             } catch (error) {
-                showAlert('error', 'Failed to connect to booking system. Please try again.');
+                if (error.name === 'AbortError') {
+                    showAlert('error', 'Request timeout. Please try again.');
+                } else {
+                    showAlert('error', 'Failed to connect to booking system. Please try again.');
+                }
                 console.error('Booking error:', error);
             } finally {
+                isSubmitting = false;
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Book Appointment';
             }
