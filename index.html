@@ -264,7 +264,62 @@
             dateInput.min = today;
             
             dateInput.addEventListener('change', loadTimeSlots);
+            
+            // Test connection on page load
+            testConnection();
         });
+        
+        // Test connection to the backend
+        async function testConnection() {
+            try {
+                console.log('Testing connection to booking system...');
+                const response = await fetch(`${SCRIPT_URL}?action=ping`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('Connection test result:', data);
+                
+                if (data.success) {
+                    console.log('✅ Successfully connected to booking system');
+                    // Show connection status to user
+                    showConnectionStatus('Connected to booking system', 'success');
+                } else {
+                    console.error('❌ Connection test failed:', data.error);
+                    showConnectionStatus('Connection failed: ' + data.error, 'error');
+                }
+            } catch (error) {
+                console.error('❌ Failed to connect to booking system:', error);
+                showConnectionStatus('Failed to connect to booking system: ' + error.message, 'error');
+            }
+        }
+        
+        // Show connection status to user
+        function showConnectionStatus(message, type) {
+            const statusDiv = document.createElement('div');
+            statusDiv.style.cssText = `
+                position: fixed;
+                top: 10px;
+                right: 10px;
+                padding: 10px 15px;
+                border-radius: 5px;
+                color: white;
+                font-weight: bold;
+                z-index: 1000;
+                ${type === 'success' ? 'background-color: #28a745;' : 'background-color: #dc3545;'}
+            `;
+            statusDiv.textContent = message;
+            document.body.appendChild(statusDiv);
+            
+            // Remove after 5 seconds
+            setTimeout(() => {
+                if (statusDiv.parentNode) {
+                    statusDiv.parentNode.removeChild(statusDiv);
+                }
+            }, 5000);
+        }
         
         // Load available time slots for selected date
         async function loadTimeSlots() {
