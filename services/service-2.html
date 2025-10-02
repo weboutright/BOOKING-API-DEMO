@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="service-title">Service Details - WagingSillydog</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+/* Custom fonts and styling to match the main site */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+* {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+body {
+    background: #0a0a0a;
+    color: #ffffff;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+}
+
+.hero-section {
+    background: linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(20,20,20,0.95) 100%), 
+                url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><defs><radialGradient id="a" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="%23ffffff" stop-opacity="0.05"/><stop offset="100%" stop-color="%23000000" stop-opacity="0.1"/></radialGradient></defs><rect width="100%" height="100%" fill="url(%23a)"/></svg>');
+    background-size: cover;
+    background-position: center;
+    padding: 80px 0 60px 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+}
+
+.hero-text {
+    color: white;
+}
+
+.hero-title {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    line-height: 1.1;
+    background: linear-gradient(135deg, #ffffff 0%, #a1a1aa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.hero-subtitle {
+    font-size: 1.25rem;
+    color: #a1a1aa;
+    margin-bottom: 2rem;
+    line-height: 1.6;
+}
+
+.hero-image {
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+    height: 400px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.hero-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.service-badge {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(59, 130, 246, 0.9);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    backdrop-filter: blur(8px);
+}
+
+.price-duration-badges {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.price-badge {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 700;
+    font-size: 1.25rem;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.duration-badge {
+    background: rgba(255, 255, 255, 0.1);
+    color: #d1d5db;
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    font-size: 1rem;
+    font-weight: 600;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.content-section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+}
+
+.service-description {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+    border: 1px solid #333333;
+    border-radius: 20px;
+    padding: 3rem;
+    margin-bottom: 3rem;
+}
+
+.description-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 1.5rem;
+}
+
+.description-text {
+    color: #d1d5db;
+    font-size: 1.1rem;
+    line-height: 1.8;
+}
+
+.features-section {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+    border: 1px solid #333333;
+    border-radius: 20px;
+    padding: 3rem;
+    margin-bottom: 3rem;
+}
+
+.features-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 2rem;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.feature-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.feature-card:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: #3b82f6;
+    transform: translateY(-2px);
+}
+
+.feature-icon {
+    color: #3b82f6;
+    margin-bottom: 1rem;
+}
+
+.feature-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 0.5rem;
+}
+
+.feature-description {
+    color: #d1d5db;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.booking-section {
+    background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+    border-radius: 20px;
+    padding: 3rem;
+    text-align: center;
+    color: white;
+}
+
+.booking-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.booking-subtitle {
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+    opacity: 0.9;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn {
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1rem;
+    text-decoration: none;
+    text-align: center;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-primary {
+    background: rgba(255, 255, 255, 0.95);
+    color: #1e40af;
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+}
+
+.btn-primary:hover {
+    background: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 255, 255, 0.3);
+}
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Navigation styles */
+.nav-bar {
+    background: rgba(10, 10, 10, 0.95);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 1rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+}
+
+.nav-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-logo {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #ffffff;
+    text-decoration: none;
+}
+
+.nav-links {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+}
+
+.nav-link {
+    color: #d1d5db;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.nav-link:hover {
+    color: #3b82f6;
+}
+
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    color: #a1a1aa;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(59, 130, 246, 0.3);
+    border-top: 3px solid #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.error-container {
+    max-width: 800px;
+    margin: 4rem auto;
+    padding: 0 2rem;
+}
+
+.error-message {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 12px;
+    text-align: center;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .hero-content {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    
+    .hero-title {
+        font-size: 2.5rem;
+    }
+    
+    .hero-image {
+        height: 300px;
+    }
+    
+    .content-section {
+        padding: 2rem 1rem;
+    }
+    
+    .service-description,
+    .features-section,
+    .booking-section {
+        padding: 2rem;
+    }
+    
+    .features-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .btn {
+        width: 100%;
+        max-width: 300px;
+    }
+    
+    .nav-content {
+        padding: 0 1rem;
+    }
+    
+    .nav-links {
+        gap: 1rem;
+    }
+    
+    .price-duration-badges {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+</style>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="nav-bar">
+        <div class="nav-content">
+            <a href="../index.html" class="nav-logo">WagingSillydog</a>
+            <div class="nav-links">
+                <a href="../index.html" class="nav-link">← Back to Services</a>
+                <a href="#" class="nav-link">About</a>
+                <a href="#" class="nav-link">Contact Us</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Loading Indicator -->
+    <div id="loading-indicator" class="loading-container">
+        <div class="loading-spinner"></div>
+        <p class="text-lg">Loading service details...</p>
+    </div>
+
+    <!-- Error Container -->
+    <div id="error-container" class="error-container hidden">
+        <div class="error-message">
+            <h3 class="text-xl font-bold mb-2">Service Not Found</h3>
+            <p>The requested service could not be loaded. Please try again or return to the services page.</p>
+            <a href="../index.html" class="inline-block mt-4 bg-white text-red-600 px-4 py-2 rounded-lg font-semibold hover:bg-gray-100 transition duration-200">
+                Return to Services
+            </a>
+        </div>
+    </div>
+
+    <!-- Service Content -->
+    <div id="service-content" class="hidden">
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1 id="service-name" class="hero-title">Service Name</h1>
+                    <p id="service-description-hero" class="hero-subtitle">Service description...</p>
+                    
+                    <div class="price-duration-badges">
+                        <div id="service-price" class="price-badge">$0</div>
+                        <div id="service-duration" class="duration-badge">0 mins</div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button onclick="openBookingModal()" class="btn btn-primary">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 4h6m-7 0l-1-1m1 1l1-1m6 1l1-1m-1 1l-1-1m0 4v3a2 2 0 01-2 2H9a2 2 0 01-2-2v-3"></path>
+                            </svg>
+                            Book This Service
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="hero-image" id="service-image-container">
+                    <img id="service-image" src="https://via.placeholder.com/600x400?text=Service+Image" alt="Service Image">
+                    <div id="service-category" class="service-badge">General</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Content Section -->
+        <div class="content-section">
+            <!-- Detailed Description -->
+            <div class="service-description">
+                <h2 class="description-title">About This Service</h2>
+                <p id="service-description-full" class="description-text">
+                    Detailed service description will be loaded here...
+                </p>
+            </div>
+
+            <!-- Features Section -->
+            <div id="features-section" class="features-section hidden">
+                <h2 class="features-title">What's Included</h2>
+                <div id="features-grid" class="features-grid">
+                    <!-- Features will be dynamically loaded here -->
+                </div>
+            </div>
+
+            <!-- Booking Section -->
+            <div class="booking-section">
+                <h2 class="booking-title">Ready to Book?</h2>
+                <p class="booking-subtitle">Schedule your appointment today and experience our professional service</p>
+                
+                <div class="action-buttons">
+                    <button onclick="openBookingModal()" class="btn btn-primary">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 4h6m-7 0l-1-1m1 1l1-1m6 1l1-1m-1 1l-1-1m0 4v3a2 2 0 01-2 2H9a2 2 0 01-2-2v-3"></path>
+                        </svg>
+                        Book Now
+                    </button>
+                    <a href="../index.html" class="btn btn-secondary">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                        </svg>
+                        View All Services
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+    // Google Apps Script Web App URL
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwzRYZ07fenMc94SYSDalTXfFhnWsOPywUXlFD6UOo82OVTf08cU5WCoLigqWF3Ku8V/exec';
+    
+    // Get service ID from URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const serviceId = urlParams.get('id') || getServiceIdFromPath();
+    
+    // Alternative method to get service ID from file path
+    function getServiceIdFromPath() {
+        const path = window.location.pathname;
+        const match = path.match(/service-(\d+)\.html/);
+        return match ? match[1] : null;
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        if (serviceId) {
+            loadServiceDetails(serviceId);
+        } else {
+            showError();
+        }
+    });
+
+    function loadServiceDetails(serviceId) {
+        const url = SCRIPT_URL + '?action=getServices&timestamp=' + Date.now();
+        
+        fetch(url)
+            .then(response => response.json())
+            .then(services => {
+                const service = services.find(s => s.rowId == serviceId);
+                if (service) {
+                    renderServiceDetails(service);
+                } else {
+                    showError();
+                }
+            })
+            .catch(error => {
+                console.error('Error loading service:', error);
+                showError();
+            });
+    }
+
+    function renderServiceDetails(service) {
+        document.getElementById('loading-indicator').classList.add('hidden');
+        document.getElementById('service-content').classList.remove('hidden');
+        
+        // Update page title
+        document.getElementById('service-title').textContent = service.name + ' - WagingSillydog';
+        document.title = service.name + ' - WagingSillydog';
+        
+        // Update service details
+        document.getElementById('service-name').textContent = service.name;
+        document.getElementById('service-description-hero').textContent = service.description;
+        document.getElementById('service-description-full').textContent = service.description;
+        document.getElementById('service-price').textContent = service.price;
+        document.getElementById('service-duration').textContent = service.duration;
+        document.getElementById('service-category').textContent = service.category || 'General';
+        
+        // Update image if available
+        if (service.imageURL && service.imageURL.trim()) {
+            document.getElementById('service-image').src = service.imageURL;
+            document.getElementById('service-image').alt = service.name;
+        }
+        
+        // Parse and display features
+        let featuresArray = [];
+        try {
+            featuresArray = JSON.parse(service.features || '[]');
+        } catch (e) {
+            console.error('Error parsing features:', e);
+        }
+        
+        if (featuresArray.length > 0 && featuresArray.some(f => f.title && f.title.trim())) {
+            const featuresSection = document.getElementById('features-section');
+            const featuresGrid = document.getElementById('features-grid');
+            
+            featuresSection.classList.remove('hidden');
+            featuresGrid.innerHTML = '';
+            
+            featuresArray.forEach((feature, index) => {
+                if (feature.title && feature.title.trim()) {
+                    const featureCard = document.createElement('div');
+                    featureCard.className = 'feature-card';
+                    featureCard.innerHTML = `
+                        <svg class="feature-icon w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        <h3 class="feature-title">${feature.title}</h3>
+                        <p class="feature-description">${feature.description || 'Included in this service package.'}</p>
+                    `;
+                    featuresGrid.appendChild(featureCard);
+                }
+            });
+        }
+        
+        // Store service data for booking modal
+        window.currentService = service;
+    }
+
+    function showError() {
+        document.getElementById('loading-indicator').classList.add('hidden');
+        document.getElementById('error-container').classList.remove('hidden');
+    }
+
+    function openBookingModal() {
+        if (window.currentService) {
+            // Create a simplified booking popup for the service detail page
+            const modal = document.createElement('div');
+            modal.id = 'booking-modal';
+            modal.className = 'fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4';
+            modal.innerHTML = `
+                <div class="bg-gray-900 border border-gray-600 rounded-2xl max-w-md w-full p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-bold text-white">Book ${window.currentService.name}</h3>
+                        <button onclick="closeBookingModal()" class="text-gray-400 hover:text-white text-2xl">×</button>
+                    </div>
+                    
+                    <div class="space-y-4 mb-6">
+                        <div class="flex justify-between items-center text-white">
+                            <span>Service:</span>
+                            <span class="font-semibold">${window.currentService.name}</span>
+                        </div>
+                        <div class="flex justify-between items-center text-white">
+                            <span>Duration:</span>
+                            <span class="font-semibold">${window.currentService.duration}</span>
+                        </div>
+                        <div class="flex justify-between items-center text-white">
+                            <span>Price:</span>
+                            <span class="font-semibold text-blue-400">${window.currentService.price}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                        <p class="text-blue-800 text-sm">
+                            To complete your booking, you'll be redirected to our main booking system where you can select your preferred date and time.
+                        </p>
+                    </div>
+                    
+                    <div class="flex gap-3">
+                        <button onclick="proceedToBooking()" class="flex-1 bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 transition duration-200">
+                            Continue to Booking
+                        </button>
+                        <button onclick="closeBookingModal()" class="px-4 py-3 text-gray-400 hover:text-white transition duration-200">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            document.body.style.overflow = 'hidden';
+        }
+    }
+
+    function closeBookingModal() {
+        const modal = document.getElementById('booking-modal');
+        if (modal) {
+            modal.remove();
+            document.body.style.overflow = 'auto';
+        }
+    }
+
+    function proceedToBooking() {
+        // Redirect to main page with booking popup
+        const mainPageUrl = '../index.html';
+        const bookingUrl = mainPageUrl + '#book-' + window.currentService.rowId;
+        window.location.href = bookingUrl;
+    }
+
+    // Close modal when clicking outside
+    document.addEventListener('click', function(e) {
+        if (e.target && e.target.id === 'booking-modal') {
+            closeBookingModal();
+        }
+    });
+</script>
+
+</body>
+</html>

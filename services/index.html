@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Services Directory - WagingSillydog</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        
+        * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        
+        body { 
+            background: #0a0a0a; 
+            color: #ffffff; 
+        }
+        
+        .service-link { 
+            display: block; 
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+            border: 1px solid #333333;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            text-decoration: none;
+            color: #ffffff;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .service-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #06b6d4 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .service-link:hover::before {
+            opacity: 1;
+        }
+        
+        .service-link:hover {
+            border-color: #3b82f6;
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(59, 130, 246, 0.15);
+        }
+        
+        .hero-section {
+            background: linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(20,20,20,0.95) 100%);
+            padding: 80px 0 60px 0;
+            text-align: center;
+        }
+        
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            line-height: 1.1;
+            background: linear-gradient(135deg, #ffffff 0%, #a1a1aa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .category-badge {
+            background: rgba(59, 130, 246, 0.9);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .loading-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 200px;
+            color: #a1a1aa;
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(59, 130, 246, 0.3);
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="max-w-4xl mx-auto px-4">
+            <h1 class="hero-title">Services Directory</h1>
+            <p class="text-xl text-gray-400 mb-8">Individual service pages hosted on GitHub</p>
+            <a href="../index.html" class="inline-block bg-blue-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-blue-700 transition duration-200">
+                ← Back to Main Site
+            </a>
+        </div>
+    </section>
+
+    <!-- Services List -->
+    <div class="max-w-6xl mx-auto p-8">
+        <!-- Loading Indicator -->
+        <div id="loading-indicator" class="loading-container">
+            <div class="loading-spinner"></div>
+            <p class="text-lg">Loading services directory...</p>
+        </div>
+        
+        <!-- Services Container -->
+        <div id="services-container" class="hidden">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold mb-4">Available Services</h2>
+                <p class="text-gray-400 text-lg">Click on any service to view detailed information</p>
+            </div>
+            
+            <div id="services-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Services will be loaded here -->
+            </div>
+        </div>
+        
+        <div class="text-center mt-12 text-gray-500">
+            <p id="services-count">Loading services...</p>
+            <p class="text-sm mt-2">Generated on <span id="current-date"></span></p>
+        </div>
+    </div>
+
+<script>
+    // Google Apps Script Web App URL
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwzRYZ07fenMc94SYSDalTXfFhnWsOPywUXlFD6UOo82OVTf08cU5WCoLigqWF3Ku8V/exec';
+    
+    document.addEventListener('DOMContentLoaded', loadServices);
+
+    function loadServices() {
+        const url = SCRIPT_URL + '?action=getServices&timestamp=' + Date.now();
+        
+        fetch(url)
+            .then(response => response.json())
+            .then(services => renderServicesDirectory(services))
+            .catch(error => {
+                console.error('Error loading services:', error);
+                showError();
+            });
+    }
+
+    function renderServicesDirectory(services) {
+        document.getElementById('loading-indicator').classList.add('hidden');
+        document.getElementById('services-container').classList.remove('hidden');
+        
+        const servicesGrid = document.getElementById('services-grid');
+        const servicesCount = document.getElementById('services-count');
+        const currentDate = document.getElementById('current-date');
+        
+        // Update date
+        currentDate.textContent = new Date().toLocaleDateString();
+        servicesCount.textContent = `${services.length} services available`;
+        
+        // Clear existing content
+        servicesGrid.innerHTML = '';
+        
+        services.forEach(service => {
+            const serviceCard = document.createElement('a');
+            serviceCard.href = `service-${service.rowId}.html`;
+            serviceCard.className = 'service-link';
+            
+            serviceCard.innerHTML = `
+                <div class="flex justify-between items-start mb-3">
+                    <div>
+                        <h3 class="text-xl font-bold mb-1">${service.name}</h3>
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="category-badge">${service.category || 'General'}</span>
+                            <span class="text-gray-400 text-sm">${service.duration}</span>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="bg-blue-600 text-white px-4 py-2 rounded-full font-bold">
+                            ${service.price}
+                        </div>
+                    </div>
+                </div>
+                
+                <p class="text-gray-300 text-sm mb-4 line-clamp-2">
+                    ${service.description.length > 120 ? service.description.substring(0, 120) + '...' : service.description}
+                </p>
+                
+                <div class="flex items-center justify-between text-sm">
+                    <div class="flex items-center gap-4 text-gray-400">
+                        ${service.imageURL && service.imageURL.trim() ? '<span>📷 Has Image</span>' : ''}
+                        ${(() => {
+                            try {
+                                const features = JSON.parse(service.features || '[]');
+                                return features.length > 0 ? `<span>✨ ${features.length} Features</span>` : '';
+                            } catch (e) {
+                                return '';
+                            }
+                        })()}
+                        ${(() => {
+                            try {
+                                const customFields = JSON.parse(service.customFields || '[]');
+                                return customFields.length > 0 ? `<span>📋 Custom Fields</span>` : '';
+                            } catch (e) {
+                                return '';
+                            }
+                        })()}
+                    </div>
+                    <div class="text-blue-400 font-medium">
+                        View Details →
+                    </div>
+                </div>
+            `;
+            
+            servicesGrid.appendChild(serviceCard);
+        });
+    }
+
+    function showError() {
+        document.getElementById('loading-indicator').classList.add('hidden');
+        document.getElementById('services-container').innerHTML = `
+            <div class="text-center py-12">
+                <div class="bg-red-900 border border-red-700 rounded-lg p-6 max-w-md mx-auto">
+                    <h3 class="text-xl font-bold mb-2 text-red-200">Error Loading Services</h3>
+                    <p class="text-red-300 mb-4">Could not load the services directory. Please try again later.</p>
+                    <a href="../index.html" class="inline-block bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition duration-200">
+                        Return to Main Site
+                    </a>
+                </div>
+            </div>
+        `;
+        document.getElementById('services-container').classList.remove('hidden');
+    }
+</script>
+
+</body>
+</html>
