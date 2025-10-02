@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Our Services</title>
-<script src="https://www.google.com/search?q=https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.tailwindcss.com"></script>
 <style>
 /* Custom scrollbar styling for aesthetics */
 ::-webkit-scrollbar { width: 8px; }
@@ -55,11 +55,22 @@ body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
     function loadServices() {
         document.getElementById('loading-indicator').classList.remove('hidden');
         
-        // Use fetch instead of google.script.run for web app
-        fetch(SCRIPT_URL + '?action=getServices')
-            .then(response => response.json())
+        // Use fetch to call the web app
+        fetch(SCRIPT_URL + '?action=getServices', {
+            method: 'GET',
+            mode: 'cors'
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
             .then(services => renderServices(services))
-            .catch(error => showError(error));
+            .catch(error => {
+                console.error('Fetch error:', error);
+                showError(error);
+            });
     }
 
     /**
