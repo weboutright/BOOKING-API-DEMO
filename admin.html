@@ -64,6 +64,20 @@ opacity: 1;
                 <textarea id="description" name="description" rows="3" required class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"></textarea>
             </div>
 
+            <!-- Custom Fields Builder -->
+            <div class="bg-gray-50 p-4 rounded-lg border">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-medium text-gray-700">Custom Booking Fields</h3>
+                    <button type="button" id="add-custom-field" class="px-3 py-1 text-sm bg-green-600 text-white rounded hover:bg-green-700 transition">
+                        + Add Field
+                    </button>
+                </div>
+                <div id="custom-fields-container" class="space-y-3">
+                    <!-- Custom fields will be added here -->
+                </div>
+                <p class="text-sm text-gray-500 mt-2">Add custom fields that customers will fill out when booking this service.</p>
+            </div>
+
             <div class="flex justify-end space-x-3">
                 <button type="button" id="cancel-edit-btn" class="hidden px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition duration-150">
                     Cancel Edit
@@ -107,6 +121,7 @@ opacity: 1;
     document.addEventListener('DOMContentLoaded', initializeAdmin);
 
     let isEditing = false;
+    let customFieldsData = [];
     const form = document.getElementById('service-form');
     const formTitle = document.getElementById('form-title');
     const submitBtn = document.getElementById('submit-btn');
@@ -119,6 +134,9 @@ opacity: 1;
         loadServices();
         form.addEventListener('submit', handleFormSubmit);
         cancelBtn.addEventListener('click', resetForm);
+        
+        // Initialize custom fields functionality
+        document.getElementById('add-custom-field').addEventListener('click', addCustomField);
     }
 
     /**
@@ -157,6 +175,10 @@ opacity: 1;
         submitBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
         cancelBtn.classList.add('hidden');
         isEditing = false;
+        
+        // Reset custom fields
+        customFieldsData = [];
+        renderCustomFields();
     }
 
     /**
@@ -170,6 +192,7 @@ opacity: 1;
             description: form.description.value,
             price: form.price.value,
             duration: form.duration.value,
+            customFields: JSON.stringify(customFieldsData)
         };
 
         if (isEditing) {
@@ -297,6 +320,14 @@ opacity: 1;
         form.price.value = service.price;
         form.duration.value = service.duration;
 
+        // Load custom fields
+        try {
+            customFieldsData = JSON.parse(service.customFields || '[]');
+        } catch (e) {
+            customFieldsData = [];
+        }
+        renderCustomFields();
+
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
@@ -327,6 +358,102 @@ opacity: 1;
             .then(response => onServiceActionSuccess(response))
             .catch(error => onServiceActionFailure(error));
         }
+    }
+
+    /**
+     * Custom Fields Management Functions
+     */
+    function addCustomField() {
+        const field = {
+            id: Date.now(),
+            type: 'text',
+            label: '',
+            name: '',
+            placeholder: '',
+            required: false,
+            options: []
+        };
+        customFieldsData.push(field);
+        renderCustomFields();
+    }
+
+    function removeCustomField(fieldId) {
+        customFieldsData = customFieldsData.filter(field => field.id !== fieldId);
+        renderCustomFields();
+    }
+
+    function updateCustomField(fieldId, property, value) {
+        const field = customFieldsData.find(f => f.id === fieldId);
+        if (field) {
+            if (property === 'options') {
+                field.options = value.split('\n').filter(opt => opt.trim());
+            } else {
+                field[property] = value;
+            }
+            // Auto-generate name from label if label changes
+            if (property === 'label') {
+                field.name = value.toLowerCase().replace(/[^a-z0-9]/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '');
+            }
+        }
+    }
+
+    function renderCustomFields() {
+        const container = document.getElementById('custom-fields-container');
+        container.innerHTML = '';
+
+        if (customFieldsData.length === 0) {
+            container.innerHTML = '<p class="text-gray-500 text-sm italic">No custom fields added yet.</p>';
+            return;
+        }
+
+        customFieldsData.forEach(field => {
+            const fieldDiv = document.createElement('div');
+            fieldDiv.className = 'bg-white p-4 border rounded-lg';
+            fieldDiv.innerHTML = `
+                <div class="flex justify-between items-start mb-3">
+                    <h4 class="font-medium text-gray-700">Custom Field</h4>
+                    <button type="button" onclick="removeCustomField(${field.id})" class="text-red-500 hover:text-red-700 text-sm">
+                        Remove
+                    </button>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600 mb-1">Field Type</label>
+                        <select onchange="updateCustomField(${field.id}, 'type', this.value); renderCustomFields();" class="w-full p-2 border border-gray-300 rounded text-sm">
+                            <option value="text" ${field.type === 'text' ? 'selected' : ''}>Text Input</option>
+                            <option value="dropdown" ${field.type === 'dropdown' ? 'selected' : ''}>Dropdown</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600 mb-1">Required</label>
+                        <label class="flex items-center">
+                            <input type="checkbox" ${field.required ? 'checked' : ''} onchange="updateCustomField(${field.id}, 'required', this.checked)" class="mr-2">
+                            <span class="text-sm">Required field</span>
+                        </label>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600 mb-1">Label</label>
+                        <input type="text" value="${field.label}" onchange="updateCustomField(${field.id}, 'label', this.value)" placeholder="e.g., Pet Size" class="w-full p-2 border border-gray-300 rounded text-sm">
+                    </div>
+                    
+                    ${field.type === 'text' ? `
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600 mb-1">Placeholder</label>
+                        <input type="text" value="${field.placeholder}" onchange="updateCustomField(${field.id}, 'placeholder', this.value)" placeholder="e.g., Enter pet's weight" class="w-full p-2 border border-gray-300 rounded text-sm">
+                    </div>
+                    ` : `
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600 mb-1">Options (one per line)</label>
+                        <textarea onchange="updateCustomField(${field.id}, 'options', this.value)" placeholder="Small\nMedium\nLarge" class="w-full p-2 border border-gray-300 rounded text-sm h-20">${field.options.join('\n')}</textarea>
+                    </div>
+                    `}
+                </div>
+            `;
+            container.appendChild(fieldDiv);
+        });
     }
 </script>
 
