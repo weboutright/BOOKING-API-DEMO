@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin Service Manager</title>
-<script src="https://www.google.com/search?q=https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.tailwindcss.com"></script>
 <style>
 /* Ensures body takes full height and uses Inter font /
 body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
@@ -171,6 +171,10 @@ opacity: 1;
             price: form.price.value,
             duration: form.duration.value,
         };
+
+        if (isEditing) {
+            serviceData.rowId = parseInt(form['row-id'].value);
+        }
 
         loading.textContent = isEditing ? 'Updating service...' : 'Adding service...';
         loading.classList.remove('hidden');
