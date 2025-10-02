@@ -55,18 +55,28 @@ body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
     function loadServices() {
         document.getElementById('loading-indicator').classList.remove('hidden');
         
-        // Use fetch to call the web app
-        fetch(SCRIPT_URL + '?action=getServices', {
-            method: 'GET',
-            mode: 'cors'
-        })
+        // Try different approaches for better compatibility
+        const url = SCRIPT_URL + '?action=getServices&timestamp=' + Date.now();
+        
+        fetch(url)
             .then(response => {
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
+                
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
-                return response.json();
+                return response.text(); // Get as text first
             })
-            .then(services => renderServices(services))
+            .then(text => {
+                console.log('Raw response:', text);
+                try {
+                    const services = JSON.parse(text);
+                    renderServices(services);
+                } catch (e) {
+                    throw new Error('Invalid JSON response: ' + text);
+                }
+            })
             .catch(error => {
                 console.error('Fetch error:', error);
                 showError(error);
