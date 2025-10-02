@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Service Manager</title>
+<script src="https://www.google.com/search?q=https://cdn.tailwindcss.com"></script>
+<style>
+/* Ensures body takes full height and uses Inter font /
+body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
+/ Style for the notification pop-up */
+#notification-box {
+position: fixed;
+top: 1.5rem;
+right: 1.5rem;
+z-index: 50;
+transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+transform: translateX(100%);
+opacity: 0;
+}
+#notification-box.show {
+transform: translateX(0);
+opacity: 1;
+}
+</style>
+</head>
+<body class="p-4 sm:p-8">
+
+<div class="max-w-6xl mx-auto">
+    <header class="text-center mb-10">
+        <h1 class="text-4xl font-extrabold text-gray-900 tracking-tight">Service Management Dashboard</h1>
+        <p class="mt-2 text-lg text-gray-600">Create, edit, and delete services that appear on the public page.</p>
+        <p class="text-sm mt-1 text-red-500 font-medium">NOTE: Row ID is critical for editing/deleting. Do not modify the Sheet manually while using this tool.</p>
+    </header>
+
+    <!-- Notification Box -->
+    <div id="notification-box" class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-lg shadow-lg" role="alert">
+        <p id="notification-message" class="font-bold"></p>
+    </div>
+
+
+    <!-- Service Form (Create/Edit) -->
+    <div class="bg-white p-6 rounded-xl shadow-xl border border-gray-100 mb-10">
+        <h2 id="form-title" class="text-2xl font-bold text-gray-800 mb-4">Add New Service</h2>
+        <form id="service-form" class="space-y-4">
+            <input type="hidden" id="row-id" name="rowId">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="name" class="block text-sm font-medium text-gray-700">Service Name</label>
+                    <input type="text" id="name" name="name" required class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border">
+                </div>
+                <div>
+                    <label for="price" class="block text-sm font-medium text-gray-700">Price (e.g., $150 or Free)</label>
+                    <input type="text" id="price" name="price" required class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border">
+                </div>
+            </div>
+            <div>
+                <label for="duration" class="block text-sm font-medium text-gray-700">Duration (e.g., 60 minutes or 1 day)</label>
+                <input type="text" id="duration" name="duration" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border">
+            </div>
+            <div>
+                <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+                <textarea id="description" name="description" rows="3" required class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"></textarea>
+            </div>
+
+            <div class="flex justify-end space-x-3">
+                <button type="button" id="cancel-edit-btn" class="hidden px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition duration-150">
+                    Cancel Edit
+                </button>
+                <button type="submit" id="submit-btn" class="px-6 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg shadow-md hover:bg-blue-700 transition duration-150 transform active:scale-95">
+                    Add Service
+                </button>
+            </div>
+        </form>
+    </div>
+
+
+    <!-- Service List -->
+    <div class="bg-white p-6 rounded-xl shadow-xl border border-gray-100">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">Current Services</h2>
+        <div id="service-list-container" class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Service Name</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price/Duration</th>
+                        <th scope="col" class="relative px-6 py-3">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="services-table-body" class="bg-white divide-y divide-gray-200">
+                    <!-- Services dynamically loaded here -->
+                </tbody>
+            </table>
+        </div>
+        <div id="loading-indicator" class="text-center p-8 hidden">Loading services...</div>
+        <div id="empty-state" class="text-center p-8 hidden text-gray-500">No services created yet. Use the form above to add one!</div>
+    </div>
+
+</div>
+
+<script>
+    // Google Apps Script Web App URL
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzTd1el_GkpXDafPZdERsKmfqcVlQ8-AWeQDwNasfiRmDU_hOdr2dimM7-YfiSS29Wy/exec';
+    
+    document.addEventListener('DOMContentLoaded', initializeAdmin);
+
+    let isEditing = false;
+    const form = document.getElementById('service-form');
+    const formTitle = document.getElementById('form-title');
+    const submitBtn = document.getElementById('submit-btn');
+    const cancelBtn = document.getElementById('cancel-edit-btn');
+    const tableBody = document.getElementById('services-table-body');
+    const loading = document.getElementById('loading-indicator');
+    const emptyState = document.getElementById('empty-state');
+
+    function initializeAdmin() {
+        loadServices();
+        form.addEventListener('submit', handleFormSubmit);
+        cancelBtn.addEventListener('click', resetForm);
+    }
+
+    /**
+     * Shows a notification pop-up.
+     * @param {string} message - The message to display.
+     * @param {string} type - 'success' or 'error'.
+     */
+    function showNotification(message, type = 'success') {
+        const box = document.getElementById('notification-box');
+        const msgEl = document.getElementById('notification-message');
+
+        const classes = {
+            success: 'bg-green-100 border-green-500 text-green-700',
+            error: 'bg-red-100 border-red-500 text-red-700'
+        };
+
+        box.className = 'absolute top-6 right-6 p-4 rounded-lg shadow-lg transition duration-300 transform';
+        box.classList.add(classes[type]);
+        box.classList.add('show');
+        msgEl.textContent = message;
+
+        setTimeout(() => {
+            box.classList.remove('show');
+        }, 3000);
+    }
+
+    /**
+     * Clears the form and resets it to 'Add New Service' mode.
+     */
+    function resetForm() {
+        form.reset();
+        document.getElementById('row-id').value = '';
+        formTitle.textContent = 'Add New Service';
+        submitBtn.textContent = 'Add Service';
+        submitBtn.classList.remove('bg-yellow-500', 'hover:bg-yellow-600');
+        submitBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+        cancelBtn.classList.add('hidden');
+        isEditing = false;
+    }
+
+    /**
+     * Handles form submission for both adding and editing services.
+     * @param {Event} e - The submit event.
+     */
+    function handleFormSubmit(e) {
+        e.preventDefault();
+        const serviceData = {
+            name: form.name.value,
+            description: form.description.value,
+            price: form.price.value,
+            duration: form.duration.value,
+        };
+
+        loading.textContent = isEditing ? 'Updating service...' : 'Adding service...';
+        loading.classList.remove('hidden');
+
+        const formData = new FormData();
+        formData.append('action', isEditing ? 'updateService' : 'addService');
+        Object.keys(serviceData).forEach(key => {
+            formData.append(key, serviceData[key]);
+        });
+
+        fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.text())
+        .then(response => onServiceActionSuccess(response))
+        .catch(error => onServiceActionFailure(error));
+    }
+
+    /**
+     * Success handler for add/update actions.
+     * @param {string} response - Message from the server.
+     */
+    function onServiceActionSuccess(response) {
+        loading.classList.add('hidden');
+        showNotification(response, 'success');
+        resetForm();
+        loadServices(); // Reload list to show changes
+    }
+
+    /**
+     * Failure handler for all Apps Script calls.
+     * @param {Error} error - The error object.
+     */
+    function onServiceActionFailure(error) {
+        loading.classList.add('hidden');
+        showNotification(`Error: ${error.message}`, 'error');
+        console.error(error);
+    }
+
+    /**
+     * Fetches all services from the Apps Script backend.
+     */
+    function loadServices() {
+        tableBody.innerHTML = '';
+        emptyState.classList.add('hidden');
+        loading.textContent = 'Loading services...';
+        loading.classList.remove('hidden');
+
+        fetch(SCRIPT_URL + '?action=getServices')
+            .then(response => response.json())
+            .then(services => renderServiceTable(services))
+            .catch(error => onServiceActionFailure(error));
+    }
+
+    /**
+     * Renders the services in the table.
+     * @param {Array<object>} services - Array of service objects.
+     */
+    function renderServiceTable(services) {
+        loading.classList.add('hidden');
+        tableBody.innerHTML = '';
+
+        if (services.length === 0) {
+            emptyState.classList.remove('hidden');
+            return;
+        }
+
+        services.forEach(service => {
+            const row = tableBody.insertRow();
+            row.className = 'hover:bg-gray-50 transition duration-100';
+
+            // ID (Row Index)
+            let cell = row.insertCell();
+            cell.className = 'px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900';
+            cell.textContent = service.rowId;
+
+            // Name
+            cell = row.insertCell();
+            cell.className = 'px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900';
+            cell.textContent = service.name;
+
+            // Price/Duration (combined for a cleaner look)
+            cell = row.insertCell();
+            cell.className = 'px-6 py-4 whitespace-nowrap text-sm text-gray-500';
+            cell.innerHTML = `<strong>${service.price}</strong> (${service.duration})`;
+
+            // Actions
+            cell = row.insertCell();
+            cell.className = 'px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2';
+            const editBtn = document.createElement('button');
+            editBtn.textContent = 'Edit';
+            editBtn.className = 'text-indigo-600 hover:text-indigo-900 transition duration-150 transform active:scale-90';
+            editBtn.onclick = () => editService(service);
+            cell.appendChild(editBtn);
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.textContent = 'Delete';
+            deleteBtn.className = 'text-red-600 hover:text-red-900 ml-4 transition duration-150 transform active:scale-90';
+            deleteBtn.onclick = () => confirmDelete(service.rowId, service.name);
+            cell.appendChild(deleteBtn);
+        });
+    }
+
+    /**
+     * Sets the form to editing mode with the selected service data.
+     * @param {object} service - The service object to edit.
+     */
+    function editService(service) {
+        isEditing = true;
+        formTitle.textContent = `Edit Service: ${service.name} (ID: ${service.rowId})`;
+        submitBtn.textContent = 'Save Changes';
+        submitBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+        submitBtn.classList.add('bg-yellow-500', 'hover:bg-yellow-600');
+        cancelBtn.classList.remove('hidden');
+
+        form['row-id'].value = service.rowId;
+        form.name.value = service.name;
+        form.description.value = service.description;
+        form.price.value = service.price;
+        form.duration.value = service.duration;
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    /**
+     * Prompts for confirmation before deleting a service.
+     * Note: This uses a simple JS confirmation box. In a production environment, use a custom modal.
+     * @param {number} rowId - The 1-based row index to delete.
+     * @param {string} name - The name of the service (for display).
+     */
+    function confirmDelete(rowId, name) {
+        // Note: Since 'alert()' and 'confirm()' are often blocked or cause UI issues,
+        // we will use a simple, explicit console log for the 'confirmation' step
+        // and proceed with deletion, assuming this is an admin-only tool.
+        // For a real-world app, you MUST implement a custom confirmation modal.
+        if (window.confirm(`Are you sure you want to delete the service: "${name}" (Row ID: ${rowId})? This cannot be undone.`)) {
+            loading.textContent = 'Deleting service...';
+            loading.classList.remove('hidden');
+            
+            const formData = new FormData();
+            formData.append('action', 'deleteService');
+            formData.append('rowId', rowId);
+            
+            fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(response => onServiceActionSuccess(response))
+            .catch(error => onServiceActionFailure(error));
+        }
+    }
+</script>
+
+</body>
+</html>

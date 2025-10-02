@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Our Services</title>
+<script src="https://www.google.com/search?q=https://cdn.tailwindcss.com"></script>
+<style>
+/* Custom scrollbar styling for aesthetics */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #f1f1f1; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+</style>
+</head>
+<body class="min-h-screen p-4 sm:p-8">
+
+<div class="max-w-4xl mx-auto">
+    <header class="text-center mb-10">
+        <h1 class="text-4xl font-extrabold text-gray-900 tracking-tight sm:text-5xl">Our Available Services</h1>
+        <p class="mt-4 text-lg text-gray-600">Explore the services you can book today.</p>
+    </header>
+
+    <div id="loading-indicator" class="text-center p-8">
+        <svg class="animate-spin h-8 w-8 text-blue-500 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <p class="mt-3 text-sm text-gray-500">Loading services...</p>
+    </div>
+
+    <div id="services-container" class="space-y-6">
+        <!-- Services will be dynamically injected here -->
+    </div>
+
+    <div id="empty-state" class="hidden text-center p-12 bg-white border-2 border-dashed border-gray-300 rounded-xl mt-10">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 9h18a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900">No Services Available</h3>
+        <p class="mt-1 text-sm text-gray-500">The admin hasn't added any services yet. Check back soon!</p>
+    </div>
+
+</div>
+
+<script>
+    // Google Apps Script Web App URL
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzTd1el_GkpXDafPZdERsKmfqcVlQ8-AWeQDwNasfiRmDU_hOdr2dimM7-YfiSS29Wy/exec';
+    
+    document.addEventListener('DOMContentLoaded', loadServices);
+
+    /**
+     * Fetches services from the Apps Script backend and renders them.
+     */
+    function loadServices() {
+        document.getElementById('loading-indicator').classList.remove('hidden');
+        
+        // Use fetch instead of google.script.run for web app
+        fetch(SCRIPT_URL + '?action=getServices')
+            .then(response => response.json())
+            .then(services => renderServices(services))
+            .catch(error => showError(error));
+    }
+
+    /**
+     * Renders the list of services fetched from the backend.
+     * @param {Array<object>} services - Array of service objects.
+     */
+    function renderServices(services) {
+        document.getElementById('loading-indicator').classList.add('hidden');
+        const container = document.getElementById('services-container');
+        container.innerHTML = ''; // Clear previous content
+
+        if (services.length === 0) {
+            document.getElementById('empty-state').classList.remove('hidden');
+            return;
+        }
+        document.getElementById('empty-state').classList.add('hidden');
+
+        services.forEach(service => {
+            const card = document.createElement('div');
+            card.className = 'bg-white shadow-xl rounded-2xl p-6 border border-gray-100 hover:shadow-2xl transition-shadow duration-300 ease-in-out';
+            card.innerHTML = `
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                    <div class="mb-4 sm:mb-0">
+                        <h2 class="text-2xl font-bold text-gray-900">${service.name}</h2>
+                        <p class="mt-1 text-sm text-gray-500">${service.duration}</p>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <span class="text-3xl font-extrabold text-blue-600">
+                            ${service.price}
+                        </span>
+                        <!-- Placeholder for a real booking link -->
+                        <a href="#" class="px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition duration-150 transform hover:scale-[1.02] active:scale-95">
+                            Book Now
+                        </a>
+                    </div>
+                </div>
+                <p class="mt-4 text-gray-700">${service.description}</p>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    /**
+     * Shows an error message if fetching fails.
+     * @param {Error} error - The error object.
+     */
+    function showError(error) {
+        document.getElementById('loading-indicator').classList.add('hidden');
+        const container = document.getElementById('services-container');
+        container.innerHTML = `<div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+            <strong class="font-bold">Error:</strong>
+            <span class="block sm:inline">Could not load services. Check Apps Script logs. (${error.message})</span>
+        </div>`;
+    }
+</script>
+
+</body>
+</html>
